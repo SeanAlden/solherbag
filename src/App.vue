@@ -2,7 +2,6 @@
 import Header from "./components/Header.vue";
 import Footer from "./components/Footer.vue";
 import HomePage from "./components/HomePage.vue";
-
 </script>
 
 <template>
@@ -14,9 +13,9 @@ import HomePage from "./components/HomePage.vue";
         <h1 class="font-light text-4xl italic">Main Content Space</h1>
       </div>
     </main> -->
-    <main class="flex-grow">
+    <main class="flex-grow pt-20 md:pt-24">
       <!-- <HomePage /> -->
-			<router-view />
+      <router-view />
     </main>
 
     <Footer />

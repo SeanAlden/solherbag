@@ -90,8 +90,73 @@
 </template>
 
 <script setup>
-import { reactive } from 'vue';
+// import { reactive } from 'vue';
 
+// const form = reactive({
+//   email: '',
+//   firstName: '',
+//   lastName: '',
+//   password: '',
+//   confirmPassword: ''
+// });
+
+// const handleRegister = () => {
+//   if (form.password !== form.confirmPassword) {
+//     alert("Passwords do not match!");
+//     return;
+//   }
+//   console.log('Registering with:', form);
+//   alert(`Pendaftaran berhasil untuk: ${form.firstName} ${form.lastName}`);
+// };
+
+// import { reactive } from 'vue';
+// import axios from 'axios'; // Import axios
+// import { useRouter } from 'vue-router';
+
+// const router = useRouter();
+// const form = reactive({
+//   email: '',
+//   firstName: '',
+//   lastName: '',
+//   password: '',
+//   confirmPassword: ''
+// });
+
+// const handleRegister = async () => {
+//   if (form.password !== form.confirmPassword) {
+//     alert("Passwords do not match!");
+//     return;
+//   }
+
+//   try {
+//     // Sesuaikan URL dengan URL backend Laravel Anda
+//     const response = await axios.post('http://localhost:8000/api/register', {
+//       first_name: form.firstName,
+//       last_name: form.lastName,
+//       email: form.email,
+//       password: form.password
+//     });
+
+//     alert(response.data.message);
+//     router.push('/login'); // Arahkan ke login setelah sukses
+
+//   } catch (error) {
+//     if (error.response && error.response.status === 422) {
+//       // Jika ada error validasi dari Laravel (misal email sudah terdaftar)
+//       alert(JSON.stringify(error.response.data));
+//     } else {
+//       alert("Terjadi kesalahan pada server.");
+//     }
+//     console.error(error);
+//   }
+// };
+
+import { reactive } from 'vue';
+import axios from 'axios';
+import { useRouter } from 'vue-router';
+import Swal from 'sweetalert2'; // Import SweetAlert2
+
+const router = useRouter();
 const form = reactive({
   email: '',
   firstName: '',
@@ -100,12 +165,74 @@ const form = reactive({
   confirmPassword: ''
 });
 
-const handleRegister = () => {
+const handleRegister = async () => {
+  // 1. Validasi Frontend: Konfirmasi Password
   if (form.password !== form.confirmPassword) {
-    alert("Passwords do not match!");
+    Swal.fire({
+      icon: 'error',
+      title: 'Oops...',
+      text: 'Passwords do not match!',
+      confirmButtonColor: '#0066FF'
+    });
     return;
   }
-  console.log('Registering with:', form);
-  alert(`Pendaftaran berhasil untuk: ${form.firstName} ${form.lastName}`);
+
+  // 2. Validasi Frontend: Panjang Password (opsional sebelum kirim ke API)
+  if (form.password.length < 8) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Weak Password',
+      text: 'Password must be at least 8 characters long.',
+      confirmButtonColor: '#0066FF'
+    });
+    return;
+  }
+
+  try {
+    const response = await axios.post('http://localhost:8000/api/register', {
+      first_name: form.firstName,
+      last_name: form.lastName,
+      email: form.email,
+      password: form.password
+    });
+
+    // Alert Sukses
+    Swal.fire({
+      icon: 'success',
+      title: 'Success!',
+      text: response.data.message,
+      showConfirmButton: false,
+      timer: 2000
+    });
+
+    router.push('/login');
+    
+  } catch (error) {
+    if (error.response && error.response.status === 422) {
+      // Menangani error validasi dari Laravel (email unik, format email, dll)
+      const errors = error.response.data;
+      let errorMessages = '';
+      
+      // Menggabungkan pesan error dari Laravel menjadi satu string
+      Object.values(errors).forEach(err => {
+        errorMessages += `${err}<br>`;
+      });
+
+      Swal.fire({
+        icon: 'error',
+        title: 'Registration Failed',
+        html: errorMessages, // Menggunakan html agar bisa memakai <br>
+        confirmButtonColor: '#0066FF'
+      });
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Server Error',
+        text: 'Something went wrong on the server side.',
+        confirmButtonColor: '#0066FF'
+      });
+    }
+    console.error(error);
+  }
 };
 </script>

@@ -5,6 +5,7 @@ import CatalogPage from '../components/CatalogPage.vue'
 import ContactPage from '../components/ContactPage.vue'
 import LoginPage from '../components/LoginPage.vue'
 import RegisterPage from '../components/RegisterPage.vue'
+import ProfilePage from '../components/ProfilePage.vue'
 
 // Import komponen lainnya (Anda bisa buat file kosong dulu untuk Catalog & Contact)
 // const CatalogPage = { template: '<div class="py-20 text-center text-3xl">Catalog Page Coming Soon</div>' }
@@ -21,11 +22,29 @@ const routes = [
         component: RegisterPage,
         meta: { hideHeaderFooter: true }
     },
+    { path: '/profilepage', name: 'Profile', component: ProfilePage },
+    {
+        path: '/profilepage',
+        name: 'Profile',
+        component: ProfilePage,
+        meta: { requiresAuth: true } 
+    },
 ]
 
 const router = createRouter({
     history: createWebHistory(),
     routes,
 })
+
+// Navigation Guard
+router.beforeEach((to, from, next) => {
+    const isAuthenticated = localStorage.getItem('token');
+
+    if (to.meta.requiresAuth && !isAuthenticated) {
+        next('/login'); // Jika belum login, lempar ke halaman login
+    } else {
+        next();
+    }
+});
 
 export default router

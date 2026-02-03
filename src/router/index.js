@@ -6,6 +6,7 @@ import ContactPage from '../components/ContactPage.vue'
 import LoginPage from '../components/LoginPage.vue'
 import RegisterPage from '../components/RegisterPage.vue'
 import ProfilePage from '../components/ProfilePage.vue'
+import OrderPage from '../components/OrderPage.vue'
 
 // Import komponen lainnya (Anda bisa buat file kosong dulu untuk Catalog & Contact)
 // const CatalogPage = { template: '<div class="py-20 text-center text-3xl">Catalog Page Coming Soon</div>' }
@@ -29,6 +30,7 @@ const routes = [
         component: ProfilePage,
         meta: { requiresAuth: true } 
     },
+    { path: '/orderpage', name: 'Orders', component: OrderPage, meta: { requiresAuth: true } },
 ]
 
 const router = createRouter({

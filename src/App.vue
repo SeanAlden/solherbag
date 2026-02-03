@@ -1,24 +1,23 @@
 <script setup>
-import Header from "./components/Header.vue";
-import Footer from "./components/Footer.vue";
-import HomePage from "./components/HomePage.vue";
+import { useRoute } from "vue-router";
+import Header from "./components/Layout/Header.vue";
+import Footer from "./components/Layout/Footer.vue";
+
+const route = useRoute();
 </script>
 
 <template>
   <div class="flex flex-col bg-[#F3F4F6] min-h-screen">
-    <Header />
+    <Header v-if="!route.meta.hideHeaderFooter" />
 
-    <!-- <main class="flex flex-grow justify-center items-center p-10">
-      <div class="opacity-20 text-center">
-        <h1 class="font-light text-4xl italic">Main Content Space</h1>
-      </div>
-    </main> -->
-    <main class="flex-grow pt-20 md:pt-24">
-      <!-- <HomePage /> -->
+    <main
+      class="flex-grow"
+      :class="[!route.meta.hideHeaderFooter ? 'pt-20 md:pt-24' : '']"
+    >
       <router-view />
     </main>
 
-    <Footer />
+    <Footer v-if="!route.meta.hideHeaderFooter" />
   </div>
 </template>
 

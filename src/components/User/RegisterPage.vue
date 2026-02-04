@@ -4,7 +4,7 @@
       
       <div class="flex justify-center mb-6">
         <img 
-          src="../assets/solherbrandbook.png" 
+          src="../../assets/solherbrandbook.png" 
           alt="SolHer Logo" 
           class="w-auto h-16 object-contain"
         />

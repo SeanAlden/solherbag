@@ -3,7 +3,7 @@
     <!-- HERO IMAGE -->
     <div class="w-full">
       <img
-        src="../assets/home_firstimage.jpeg"
+        src="../../assets/home_firstimage.jpeg"
         alt="SolHer Product"
         class="w-full h-auto object-cover"
       />
@@ -24,12 +24,12 @@
     <!-- DOUBLE IMAGE -->
     <div class="grid grid-cols-1 md:grid-cols-2 w-full">
       <img
-        src="../assets/DSCF5814.jpg"
+        src="../../assets/DSCF5814.jpg"
         alt="SolHer Style Left"
         class="w-full h-full object-cover"
       />
       <img
-        src="../assets/DSCF5186.jpg"
+        src="../../assets/DSCF5186.jpg"
         alt="SolHer Style Right"
         class="w-full h-full object-cover"
       />
@@ -134,7 +134,7 @@
     <!-- FOOTER IMAGE -->
     <div class="relative w-full h-[300px] md:h-[500px] overflow-hidden">
       <img
-        src="../assets/home_lastimage.jpg"
+        src="../../assets/home_lastimage.jpg"
         alt="Premium Materials"
         class="w-full h-full object-cover"
       />
@@ -150,18 +150,18 @@
 <script setup>
 import { ref } from "vue";
 
-import img1 from "../assets/products/helia_series.png";
-import img2 from "../assets/products/eterna_series.png";
-import img3 from "../assets/products/solenne_series.png";
-import img4 from "../assets/products/glisenta_series.png";
-import img5 from "../assets/products/marquesa_series.png";
-import img6 from "../assets/products/allegra_series.png";
+import img1 from "../../assets/products/helia_series.png";
+import img2 from "../../assets/products/eterna_series.png";
+import img3 from "../../assets/products/solenne_series.png";
+import img4 from "../../assets/products/glisenta_series.png";
+import img5 from "../../assets/products/marquesa_series.png";
+import img6 from "../../assets/products/allegra_series.png";
 
-import v2_img1 from "../assets/products/man_tang_hong.jpg";
-import v2_img2 from "../assets/products/yu_pai.jpg";
-import v2_img3 from "../assets/products/jin_zun.jpg";
-import v2_img4 from "../assets/products/jiang_ye.jpg";
-import v2_img5 from "../assets/products/hong_yun.jpg";
+import v2_img1 from "../../assets/products/man_tang_hong.jpg";
+import v2_img2 from "../../assets/products/yu_pai.jpg";
+import v2_img3 from "../../assets/products/jin_zun.jpg";
+import v2_img4 from "../../assets/products/jiang_ye.jpg";
+import v2_img5 from "../../assets/products/hong_yun.jpg";
 
 const volumeOneProducts = ref([
   { name: "Helia Series", price: 2558000, image: img1 },

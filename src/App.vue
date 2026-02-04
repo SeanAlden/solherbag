@@ -1,16 +1,45 @@
 <script setup>
+// import { useRoute } from "vue-router";
+// import Header from "./components/Layout/Header.vue";
+// import Footer from "./components/Layout/Footer.vue";
+
+// const route = useRoute();
+
 import { useRoute } from "vue-router";
-import Header from "./components/Layout/Header.vue";
-import Footer from "./components/Layout/Footer.vue";
+import Header from "./components/User/Layout/Header.vue";
+import Footer from "./components/User/Layout/Footer.vue";
+import Sidebar from "./components/Admin/Layout/Sidebar.vue";
 
 const route = useRoute();
 </script>
 
 <template>
-  <div class="flex flex-col bg-[#F3F4F6] min-h-screen">
+  <!-- <div class="flex flex-col bg-[#F3F4F6] min-h-screen">
     <Header v-if="!route.meta.hideHeaderFooter" />
 
     <main
+      class="flex-grow"
+      :class="[!route.meta.hideHeaderFooter ? 'pt-20 md:pt-24' : '']"
+    >
+      <router-view />
+    </main>
+
+    <Footer v-if="!route.meta.hideHeaderFooter" />
+  </div> -->
+
+  <div class="flex flex-col bg-[#F3F4F6] min-h-screen">
+    <Header v-if="!route.meta.hideHeaderFooter" />
+
+    <div v-if="route.meta.isAdmin" class="flex min-h-screen">
+      <Sidebar class="flex-shrink-0 w-64" />
+
+      <main class="flex-grow bg-gray-100 p-8 overflow-y-auto">
+        <router-view />
+      </main>
+    </div>
+
+    <main
+      v-else
       class="flex-grow"
       :class="[!route.meta.hideHeaderFooter ? 'pt-20 md:pt-24' : '']"
     >

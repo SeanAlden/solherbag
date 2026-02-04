@@ -21,7 +21,7 @@
             class="group-hover:opacity-0 w-full h-full object-cover transition-opacity duration-100"
           />
           <img 
-            src="../assets/products/DSCF5174.jpg" 
+            src="../../assets/products/DSCF5174.jpg" 
             alt="Hover view"
             class="top-0 left-0 absolute opacity-0 group-hover:opacity-100 w-full h-full object-cover transition-opacity duration-100"
           />

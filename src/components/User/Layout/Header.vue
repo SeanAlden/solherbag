@@ -23,7 +23,7 @@
 
       <div class="flex-shrink-0">
         <img
-          src="../../assets/solherbrandbook.png"
+          src="../../../assets/solherbrandbook.png"
           alt="Solher Logo"
           class="w-auto h-8 md:h-12 object-contain"
         />

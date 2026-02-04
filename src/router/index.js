@@ -13,6 +13,11 @@ import CategoryPage from '../components/Admin/CategoryPage.vue'
 import ProductPage from '../components/Admin/ProductPage.vue'
 import ProductAddPage from '../components/Admin/ProductAddPage.vue'
 import ProductEditPage from '../components/Admin/ProductEditPage.vue'
+import SalesReportPage from '../components/Admin/SalesReportPage.vue'
+import TransactionPage from '../components/Admin/TransactionPage.vue'
+import ProductDetailPage from '../components/User/ProductDetailPage.vue'
+import UserListPage from '../components/Admin/UserListPage.vue'
+import UserDetailPage from '../components/Admin/UserDetailPage.vue'
 
 // Import komponen lainnya (Anda bisa buat file kosong dulu untuk Catalog & Contact)
 // const CatalogPage = { template: '<div class="py-20 text-center text-3xl">Catalog Page Coming Soon</div>' }
@@ -23,7 +28,7 @@ const routes = [
     { path: '/catalog', name: 'Catalog', component: CatalogPage },
     { path: '/contact', name: 'Contact', component: ContactPage },
     { path: '/login', name: 'Login', component: LoginPage, meta: { hideHeaderFooter: true } },
-    { path: '/admin/login', name: 'Admin Login', component: AdminLoginPage, meta: { hideHeaderFooter: true } },
+    { path: '/loginadmin', name: 'Admin Login', component: AdminLoginPage, meta: { hideHeaderFooter: true } },
     {
         path: '/register',
         name: 'Register',
@@ -35,7 +40,7 @@ const routes = [
         path: '/profilepage',
         name: 'Profile',
         component: ProfilePage,
-        meta: { requiresAuth: true } 
+        meta: { requiresAuth: true }
     },
     { path: '/orderpage', name: 'Orders', component: OrderPage, meta: { requiresAuth: true } },
     {
@@ -78,6 +83,37 @@ const routes = [
             isAdmin: true           // Trigger untuk Sidebar layout
         }
     },
+    {
+        path: '/admin/salesreports', name: 'SalesReport', component: SalesReportPage,
+        meta: {
+            requiresAuth: true,
+            hideHeaderFooter: true, // Sembunyikan Header/Footer standar
+            isAdmin: true           // Trigger untuk Sidebar layout
+        }
+    },
+    {
+        path: '/admin/transactions', name: 'Transaction', component: TransactionPage,
+        meta: {
+            requiresAuth: true,
+            hideHeaderFooter: true, // Sembunyikan Header/Footer standar
+            isAdmin: true           // Trigger untuk Sidebar layout
+        }
+    },
+    { path: '/product/:id', name: 'ProductDetail', component: ProductDetailPage },
+    {
+        path: '/admin/user_list', name: 'UserList', component: UserListPage,
+        meta: {
+            requiresAuth: true,
+            hideHeaderFooter: true, // Sembunyikan Header/Footer standar
+            isAdmin: true           // Trigger untuk Sidebar layout
+        }
+    },
+    {
+        path: '/admin/users/:id',
+        name: 'UserDetail',
+        component: UserDetailPage,
+        meta: { requiresAuth: true, hideHeaderFooter: true, isAdmin: true } //
+    },
 ]
 
 const router = createRouter({
@@ -86,12 +122,40 @@ const router = createRouter({
 })
 
 // Navigation Guard
+// router.beforeEach((to, from, next) => {
+//     const isAuthenticated = localStorage.getItem('token');
+
+//     if (to.meta.requiresAuth && !isAuthenticated) {
+//         next('/login'); // Jika belum login, lempar ke halaman login
+//     } else {
+//         next();
+//     }
+// });
+
+// Navigation Guard
 router.beforeEach((to, from, next) => {
     const isAuthenticated = localStorage.getItem('token');
+    const userString = localStorage.getItem('user');
+    const user = userString ? JSON.parse(userString) : null;
 
+    // Cek apakah rute yang dituju adalah area admin
+    const isAccessingAdmin = to.path.startsWith('/admin') || to.meta.isAdmin;
+
+    // 1. Jika Belum Login
     if (to.meta.requiresAuth && !isAuthenticated) {
-        next('/login'); // Jika belum login, lempar ke halaman login
-    } else {
+        if (isAccessingAdmin) {
+            next('/admin/login'); // Lempar ke Login Admin
+        } else {
+            next('/login'); // Lempar ke Login User
+        }
+    }
+    // 2. Jika Sudah Login tapi User Biasa mencoba akses Admin
+    else if (isAccessingAdmin && user?.usertype !== 'admin') {
+        // Jika user nekat masuk ke /admin/... padahal tipenya bukan admin
+        next('/login'); // Atau lempar ke halaman 403 / Home
+    }
+    // 3. Jika Kondisi Terpenuhi
+    else {
         next();
     }
 });

@@ -1,19 +1,109 @@
 <template>
-  <div class="bg-white shadow-sm p-6 border border-gray-200 rounded-xl">
-    <h1 class="font-bold text-gray-800 text-2xl">Admin Overview</h1>
-    <p class="mt-2 text-gray-500">
-      Welcome back, Admin! Here is your business summary.
-    </p>
+  <div class="space-y-8">
+    <div class="gap-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+      <div class="bg-white shadow-sm p-6 border border-gray-100 rounded-2xl">
+        <p class="mb-1 font-bold text-gray-400 text-xs uppercase tracking-wider">Total Sales</p>
+        <p class="font-black text-gray-900 text-2xl">Rp 12.500.000</p>
+        <span class="font-medium text-green-500 text-xs">↑ 12% from last month</span>
+      </div>
 
-    <div class="gap-6 grid grid-cols-1 md:grid-cols-3 mt-8">
-      <div class="bg-blue-50 p-6 border border-blue-100 rounded-lg">
-        <p class="font-semibold text-blue-600 text-sm uppercase">Total Sales</p>
-        <p class="font-bold text-3xl">Rp 12.500.000</p>
+      <div class="bg-white shadow-sm p-6 border border-gray-100 rounded-2xl">
+        <p class="mb-1 font-bold text-gray-400 text-xs uppercase tracking-wider">Total Products</p>
+        <p class="font-black text-gray-900 text-2xl">48</p>
+        <span class="text-gray-400 text-xs">Active in catalog</span>
+      </div>
+
+      <div class="bg-white shadow-sm p-6 border border-gray-100 rounded-2xl">
+        <p class="mb-1 font-bold text-gray-400 text-xs uppercase tracking-wider">Total Transactions</p>
+        <p class="font-black text-gray-900 text-2xl">1,240</p>
+        <span class="font-medium text-green-500 text-xs">↑ 5.4%</span>
+      </div>
+
+      <div class="bg-white shadow-sm p-6 border border-gray-100 rounded-2xl">
+        <p class="mb-1 font-bold text-gray-400 text-xs uppercase tracking-wider">Total Users</p>
+        <p class="font-black text-gray-900 text-2xl">856</p>
+        <span class="font-medium text-blue-500 text-xs">Registered members</span>
+      </div>
+    </div>
+
+    <div class="gap-6 grid grid-cols-1 lg:grid-cols-3">
+      <div class="lg:col-span-2 bg-white shadow-sm p-6 border border-gray-100 rounded-2xl">
+        <h3 class="mb-6 font-bold text-gray-800">Monthly Revenue Overview</h3>
+        <div class="h-[300px]">
+          <Line :data="revenueData" :options="chartOptions" />
+        </div>
+      </div>
+
+      <div class="bg-white shadow-sm p-6 border border-gray-100 rounded-2xl">
+        <h3 class="mb-6 font-bold text-gray-800">Popular Products</h3>
+        <div class="flex justify-center h-[300px]">
+          <Pie :data="pieData" :options="pieOptions" />
+        </div>
       </div>
     </div>
   </div>
 </template>
 
-<script></script>
+<script setup>
+import { ref } from 'vue';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement
+} from 'chart.js';
+import { Line, Pie } from 'vue-chartjs';
 
-<style lang="scss" scoped></style>
+// Registrasi komponen Chart.js
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement
+);
+
+// Data Dummy Pendapatan Perbulan (Line Chart)
+const revenueData = ref({
+  labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+  datasets: [{
+    label: 'Revenue (Million Rp)',
+    backgroundColor: '#3b82f6',
+    borderColor: '#3b82f6',
+    data: [5, 8, 7, 12.5, 10, 15],
+    tension: 0.4, // Membuat garis melengkung halus
+    fill: false
+  }]
+});
+
+// Data Dummy Produk Populer (Pie Chart)
+const pieData = ref({
+  labels: ['Helia Bag', 'Eterna Bag', 'Solenne Bag', 'Others'],
+  datasets: [{
+    backgroundColor: ['#1e1e1e', '#3b82f6', '#10b981', '#f3f4f6'],
+    data: [40, 25, 20, 15]
+  }]
+});
+
+// Konfigurasi Chart
+const chartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+};
+
+const pieOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { position: 'bottom' }
+  }
+};
+</script>

@@ -25,10 +25,6 @@
           </button>
         </div>
       </form>
-
-      <p class="mt-6 text-gray-500 text-xs text-center">
-        Go back to <router-link to="/login" class="font-bold text-blue-600 hover:underline">User Login</router-link>
-      </p>
     </div>
   </div>
 </template>

@@ -6,22 +6,14 @@
       <div v-if="userData" class="flex md:flex-row flex-col gap-10">
         <div class="flex flex-col items-center gap-4">
           <div class="group relative">
-            <!-- <img
-              :src="
-                userData.profile_image
-                  ? `http://localhost:8000/storage/${userData.profile_image}`
-                  : '../src/assets/profile.png' +
-                    userData.first_name +
-                    '+' +
-                    userData.last_name
-              "
-              class="shadow-sm border-4 border-gray-50 rounded-full w-32 h-32 object-cover"
-            /> -->
             <img
               :src="
                 userData.profile_image
-                  ? `http://localhost:8000/storage/${userData.profile_image}`
-                  : `https://ui-avatars.com/api/?name=${userData.first_name}+${userData.last_name}&background=random`
+                  ? `http://localhost:8000/storage/${userData.profile_image}?t=${new Date().getTime()}`
+                  : 'https://ui-avatars.com/api/?name=' +
+                    userData.first_name +
+                    '+' +
+                    userData.last_name
               "
               class="shadow-sm border-4 border-gray-50 rounded-full w-32 h-32 object-cover"
             />
@@ -106,14 +98,14 @@
       </div>
     </div>
     <!-- Logout Button -->
-<div class="flex justify-end mt-10 pt-6 border-gray-100 border-t">
-  <button
-    @click="handleLogout"
-    class="bg-red-500 hover:bg-red-600 shadow-sm px-6 py-2 rounded-xl font-semibold text-white transition duration-200"
-  >
-    Logout
-  </button>
-</div>
+    <div class="flex justify-end mt-10 pt-6 border-gray-100 border-t">
+      <button
+        @click="handleLogout"
+        class="bg-red-500 hover:bg-red-600 shadow-sm px-6 py-2 rounded-xl font-semibold text-white transition duration-200"
+      >
+        Logout
+      </button>
+    </div>
 
     <div
       v-if="showInfoModal"
@@ -425,9 +417,10 @@ const openInfoModal = () => {
   showInfoModal.value = true;
 };
 
-// Update Image (Langsung saat file dipilih)
 // const handleImageUpdate = async (e) => {
 //   const file = e.target.files[0];
+//   if (!file) return;
+
 //   const formData = new FormData();
 //   formData.append("image", file);
 
@@ -442,10 +435,19 @@ const openInfoModal = () => {
 //         },
 //       },
 //     );
-//     updateUserData(res.data.user);
-//     Swal.fire("Success", "Foto profil diperbarui!", "success");
+
+//     // Pastikan res.data.user benar-benar ada sebelum diupdate
+//     if (res.data.user) {
+//       updateUserData(res.data.user);
+//       Swal.fire("Success", "Foto profil diperbarui!", "success");
+//     }
 //   } catch (err) {
-//     Swal.fire("Error", "Gagal mengunggah foto", "error");
+//     console.error(err);
+//     Swal.fire(
+//       "Error",
+//       "Gagal mengunggah foto. Pastikan ukuran file < 2MB",
+//       "error",
+//     );
 //   }
 // };
 
@@ -468,18 +470,23 @@ const handleImageUpdate = async (e) => {
       },
     );
 
-    // Pastikan res.data.user benar-benar ada sebelum diupdate
     if (res.data.user) {
+      // Gunakan fungsi update yang sudah kita buat
       updateUserData(res.data.user);
-      Swal.fire("Success", "Foto profil diperbarui!", "success");
+
+      // Memberikan jeda sangat singkat agar DOM siap
+      setTimeout(() => {
+        Swal.fire("Success", "Foto profil diperbarui!", "success");
+      }, 100);
     }
   } catch (err) {
-    console.error(err);
-    Swal.fire(
-      "Error",
-      "Gagal mengunggah foto. Pastikan ukuran file < 2MB",
-      "error",
-    );
+    if (err.response?.status === 403) {
+      Swal.fire(
+        "Error",
+        "Izin akses ditolak oleh server. Coba refresh halaman.",
+        "error",
+      );
+    }
   }
 };
 
@@ -525,11 +532,18 @@ const submitPasswordUpdate = async () => {
   }
 };
 
+// const updateUserData = (user) => {
+//   if (!user) return;
+//   // Gunakan spread operator untuk memastikan reaktivitas Vue berjalan baik
+//   userData.value = { ...user };
+//   localStorage.setItem("user", JSON.stringify(user));
+// };
+
 const updateUserData = (user) => {
   if (!user) return;
-  // Gunakan spread operator untuk memastikan reaktivitas Vue berjalan baik
-  userData.value = { ...user };
-  localStorage.setItem("user", JSON.stringify(user));
+  // Menggunakan Object.assign untuk update data tanpa merusak referensi objek asli
+  userData.value = Object.assign({}, userData.value, user);
+  localStorage.setItem("user", JSON.stringify(userData.value));
 };
 
 const editForm = ref({
@@ -555,53 +569,8 @@ onMounted(() => {
 
   fetchAddresses();
 
-  fetchProvinces(); // Load provinsi default (Indonesia)
+  fetchProvinces();
 });
-
-// const handleImageUpload = (e) => {
-//   editForm.value.image = e.target.files[0];
-// };
-
-// const updateProfile = async () => {
-//   const formData = new FormData();
-
-//   formData.append("first_name", editForm.value.first_name);
-
-//   formData.append("last_name", editForm.value.last_name);
-
-//   if (editForm.value.password)
-//     formData.append("password", editForm.value.password);
-
-//   if (editForm.value.image) formData.append("image", editForm.value.image);
-
-//   try {
-//     const res = await axios.post(
-//       "http://localhost:8000/api/user/update",
-
-//       formData,
-
-//       {
-//         headers: {
-//           Authorization: `Bearer ${localStorage.getItem("token")}`,
-
-//           "Content-Type": "multipart/form-data",
-//         },
-//       },
-//     );
-
-//     // Update local storage & data
-
-//     userData.value = res.data.user;
-
-//     localStorage.setItem("user", JSON.stringify(res.data.user));
-
-//     Swal.fire("Success", "Profil diperbarui!", "success");
-
-//     editForm.value.password = ""; // Clear password field
-//   } catch (err) {
-//     Swal.fire("Error", "Gagal memperbarui profil", "error");
-//   }
-// };
 
 const form = ref({
   id: null,
@@ -683,3 +652,4 @@ const handleLogout = () => {
   router.push("/login");
 };
 </script>
+

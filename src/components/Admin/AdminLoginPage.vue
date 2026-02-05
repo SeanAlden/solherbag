@@ -34,6 +34,7 @@ import { ref } from "vue";
 import axios from "axios";
 import { useRouter } from "vue-router";
 import Swal from "sweetalert2";
+import { BASE_URL } from "../../config/api.js";
 
 const router = useRouter();
 const email = ref("");
@@ -41,7 +42,7 @@ const password = ref("");
 
 const handleAdminLogin = async () => {
   try {
-    const response = await axios.post("http://localhost:8000/api/admin/login", {
+    const response = await axios.post(`${BASE_URL}/admin/login`, {
       email: email.value,
       password: password.value,
     });

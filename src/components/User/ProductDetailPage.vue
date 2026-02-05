@@ -3,8 +3,12 @@
     <div class="flex md:flex-row flex-col gap-12 lg:gap-24">
       <div class="w-full md:w-1/2">
         <div class="bg-gray-100 aspect-[4/5] overflow-hidden">
-          <img 
+          <!-- <img 
             :src="`http://localhost:8000/storage/${product.image}`" 
+            class="w-full h-full object-cover" 
+          /> -->
+          <img 
+            :src="product.image" 
             class="w-full h-full object-cover" 
           />
         </div>
@@ -57,6 +61,7 @@ import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import axios from "axios";
 import Swal from "sweetalert2";
+import { BASE_URL } from "../../config/api.js";
 
 const route = useRoute();
 const router = useRouter();
@@ -65,7 +70,7 @@ const activeSection = ref('Description');
 
 const fetchProductDetail = async () => {
   try {
-    const res = await axios.get(`http://localhost:8000/api/products/${route.params.id}`);
+    const res = await axios.get(`${BASE_URL}/products/${route.params.id}`);
     product.value = res.data;
   } catch (error) {
     router.push('/catalog');

@@ -29,9 +29,14 @@
             class="hover:bg-gray-50 border-gray-50 border-b transition"
           >
             <td class="py-4">
-              <img
+              <!-- <img
                 :src="`http://localhost:8000/storage/${p.image}`"
                 class="rounded-lg w-16 h-16 object-cover"
+              /> -->
+              <img
+                :src="p.image"
+                class="rounded-lg w-16 h-16 object-cover"
+                alt="Product Image"
               />
             </td>
             <td class="py-4 font-mono text-sm">{{ p.code }}</td>
@@ -64,6 +69,7 @@
 import { ref, onMounted } from "vue";
 import axios from "axios";
 import Swal from "sweetalert2";
+import { BASE_URL } from "../../config/api.js";
 
 const products = ref([]);
 const axiosConfig = {
@@ -72,7 +78,7 @@ const axiosConfig = {
 
 const fetchProducts = async () => {
   const res = await axios.get(
-    "http://localhost:8000/api/products",
+    `${BASE_URL}/products`,
     axiosConfig,
   );
   products.value = res.data;
@@ -88,7 +94,7 @@ const confirmDelete = (id) => {
   }).then(async (result) => {
     if (result.isConfirmed) {
       await axios.delete(
-        `http://localhost:8000/api/products/${id}`,
+        `${BASE_URL}/products/${id}`,
         axiosConfig,
       );
       fetchProducts();

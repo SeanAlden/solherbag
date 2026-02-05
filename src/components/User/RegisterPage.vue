@@ -155,6 +155,7 @@ import { reactive } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
 import Swal from 'sweetalert2'; // Import SweetAlert2
+import { BASE_URL } from "../../config/api.js";
 
 const router = useRouter();
 const form = reactive({
@@ -189,7 +190,7 @@ const handleRegister = async () => {
   }
 
   try {
-    const response = await axios.post('http://localhost:8000/api/register', {
+    const response = await axios.post(`${BASE_URL}/register`, {
       first_name: form.firstName,
       last_name: form.lastName,
       email: form.email,

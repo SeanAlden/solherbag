@@ -1,10 +1,18 @@
 <template>
   <div v-if="user" class="space-y-8">
     <div class="flex items-center gap-6 bg-white shadow-sm p-8 rounded-2xl">
-      <img
+      <!-- <img
         :src="
           user.profile_image
             ? `http://localhost:8000/storage/${user.profile_image}`
+            : `https://ui-avatars.com/api/?name=${user.first_name}+${user.last_name}`
+        "
+        class="rounded-full w-20 h-20 object-cover"
+      /> -->
+      <img
+        :src="
+          user.profile_image
+            ? `${user.profile_image}`
             : `https://ui-avatars.com/api/?name=${user.first_name}+${user.last_name}`
         "
         class="rounded-full w-20 h-20 object-cover"
@@ -49,6 +57,7 @@
 import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import axios from "axios";
+import { BASE_URL } from "../../config/api.js";
 
 const route = useRoute();
 const user = ref(null);
@@ -58,7 +67,7 @@ const axiosConfig = {
 
 onMounted(async () => {
   const res = await axios.get(
-    `http://localhost:8000/api/admin/users/${route.params.id}`,
+    `${BASE_URL}/admin/users/${route.params.id}`,
     axiosConfig,
   ); //
   user.value = res.data;

@@ -68,6 +68,7 @@ import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import { useRouter, useRoute } from 'vue-router';
 import Swal from 'sweetalert2';
+import { BASE_URL } from "../../config/api.js";
 
 const router = useRouter();
 const route = useRoute();
@@ -99,11 +100,11 @@ const handleFile = (e) => {
 onMounted(async () => {
   try {
     // 1. Fetch Categories
-    const catRes = await axios.get('http://localhost:8000/api/categories', axiosConfig);
+    const catRes = await axios.get(`${BASE_URL}/categories`, axiosConfig);
     categories.value = catRes.data;
 
     // 2. Fetch Product Detail
-    const prodRes = await axios.get(`http://localhost:8000/api/products/${productId}`, axiosConfig);
+    const prodRes = await axios.get(`${BASE_URL}/products/${productId}`, axiosConfig);
     const p = prodRes.data;
     
     form.value.name = p.name;
@@ -138,7 +139,7 @@ const handleSubmit = async () => {
 
   try {
     // Tetap menggunakan .post karena menyertakan file, tapi method aslinya PUT (via _method)
-    await axios.post(`http://localhost:8000/api/products/${productId}`, formData, {
+    await axios.post(`${BASE_URL}/products/${productId}`, formData, {
       headers: { 
         'Content-Type': 'multipart/form-data',
         ...axiosConfig.headers 

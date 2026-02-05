@@ -19,10 +19,18 @@
             class="hover:bg-gray-50 border-gray-50 border-b transition cursor-pointer"
           >
             <td class="py-4">
-              <img
+              <!-- <img
                 :src="
                   user.profile_image
                     ? `http://localhost:8000/storage/${user.profile_image}`
+                    : `https://ui-avatars.com/api/?name=${user.first_name}+${user.last_name}`
+                "
+                class="rounded-full w-10 h-10 object-cover"
+              /> -->
+              <img
+                :src="
+                  user.profile_image
+                    ? `${user.profile_image}`
                     : `https://ui-avatars.com/api/?name=${user.first_name}+${user.last_name}`
                 "
                 class="rounded-full w-10 h-10 object-cover"
@@ -50,6 +58,7 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import axios from "axios";
+import { BASE_URL } from "../../config/api.js";
 
 const users = ref([]);
 const axiosConfig = {
@@ -58,7 +67,7 @@ const axiosConfig = {
 
 const fetchUsers = async () => {
   const res = await axios.get(
-    "http://localhost:8000/api/admin/users",
+    `${BASE_URL}/admin/users`,
     axiosConfig,
   ); //
   users.value = res.data;

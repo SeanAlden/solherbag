@@ -6,7 +6,7 @@
       <div v-if="userData" class="flex md:flex-row flex-col gap-10">
         <div class="flex flex-col items-center gap-4">
           <div class="group relative">
-            <img
+            <!-- <img
               :src="
                 userData.profile_image
                   ? `http://localhost:8000/storage/${userData.profile_image}?t=${new Date().getTime()}`
@@ -16,6 +16,15 @@
                     userData.last_name
               "
               class="shadow-sm border-4 border-gray-50 rounded-full w-32 h-32 object-cover"
+            /> -->
+            <img
+              :src="
+                userData.profile_image
+                  ? userData.profile_image
+                  : `https://ui-avatars.com/api/?name=${userData.first_name}+${userData.last_name}&background=random`
+              "
+              class="shadow-sm border-4 border-gray-50 rounded-full w-32 h-32 object-cover"
+              alt="Profile Avatar"
             />
             <label
               class="absolute inset-0 flex justify-center items-center bg-black/40 opacity-0 group-hover:opacity-100 rounded-full transition-opacity cursor-pointer"
@@ -389,7 +398,9 @@ import { ref, onMounted } from "vue";
 import axios from "axios";
 import { useRouter } from "vue-router";
 import Swal from "sweetalert2";
-import { Country, State } from "country-state-city"; // npm install country-state-city
+import { Country, State } from "country-state-city";
+import { BASE_URL } from "../../config/api.js";
+
 
 const addresses = ref([]);
 const showModal = ref(false);
@@ -417,40 +428,6 @@ const openInfoModal = () => {
   showInfoModal.value = true;
 };
 
-// const handleImageUpdate = async (e) => {
-//   const file = e.target.files[0];
-//   if (!file) return;
-
-//   const formData = new FormData();
-//   formData.append("image", file);
-
-//   try {
-//     const res = await axios.post(
-//       "http://localhost:8000/api/user/update-image",
-//       formData,
-//       {
-//         headers: {
-//           Authorization: `Bearer ${localStorage.getItem("token")}`,
-//           "Content-Type": "multipart/form-data",
-//         },
-//       },
-//     );
-
-//     // Pastikan res.data.user benar-benar ada sebelum diupdate
-//     if (res.data.user) {
-//       updateUserData(res.data.user);
-//       Swal.fire("Success", "Foto profil diperbarui!", "success");
-//     }
-//   } catch (err) {
-//     console.error(err);
-//     Swal.fire(
-//       "Error",
-//       "Gagal mengunggah foto. Pastikan ukuran file < 2MB",
-//       "error",
-//     );
-//   }
-// };
-
 const handleImageUpdate = async (e) => {
   const file = e.target.files[0];
   if (!file) return;
@@ -460,7 +437,7 @@ const handleImageUpdate = async (e) => {
 
   try {
     const res = await axios.post(
-      "http://localhost:8000/api/user/update-image",
+      `${BASE_URL}/user/update-image`,
       formData,
       {
         headers: {
@@ -471,10 +448,8 @@ const handleImageUpdate = async (e) => {
     );
 
     if (res.data.user) {
-      // Gunakan fungsi update yang sudah kita buat
       updateUserData(res.data.user);
 
-      // Memberikan jeda sangat singkat agar DOM siap
       setTimeout(() => {
         Swal.fire("Success", "Foto profil diperbarui!", "success");
       }, 100);
@@ -493,7 +468,7 @@ const handleImageUpdate = async (e) => {
 const submitInfoUpdate = async () => {
   try {
     const res = await axios.post(
-      "http://localhost:8000/api/user/update-info",
+      `${BASE_URL}/user/update-info`,
       infoForm.value,
       {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -510,7 +485,7 @@ const submitInfoUpdate = async () => {
 const submitPasswordUpdate = async () => {
   try {
     await axios.post(
-      "http://localhost:8000/api/user/update-password",
+      `${BASE_URL}/user/update-password`,
       passForm.value,
       {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -532,16 +507,9 @@ const submitPasswordUpdate = async () => {
   }
 };
 
-// const updateUserData = (user) => {
-//   if (!user) return;
-//   // Gunakan spread operator untuk memastikan reaktivitas Vue berjalan baik
-//   userData.value = { ...user };
-//   localStorage.setItem("user", JSON.stringify(user));
-// };
-
 const updateUserData = (user) => {
   if (!user) return;
-  // Menggunakan Object.assign untuk update data tanpa merusak referensi objek asli
+
   userData.value = Object.assign({}, userData.value, user);
   localStorage.setItem("user", JSON.stringify(userData.value));
 };
@@ -586,7 +554,7 @@ const form = ref({
 });
 
 const fetchAddresses = async () => {
-  const res = await axios.get("http://localhost:8000/api/addresses", {
+  const res = await axios.get(`${BASE_URL}/addresses`, {
     headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
   });
 
@@ -621,8 +589,8 @@ const openModal = (data = null) => {
 
 const saveAddress = async () => {
   const url = isEdit.value
-    ? `http://localhost:8000/api/addresses/${form.value.id}`
-    : "http://localhost:8000/api/addresses";
+    ? `${BASE_URL}/addresses/${form.value.id}`
+    : `${BASE_URL}/addresses`;
 
   const method = isEdit.value ? "put" : "post";
 
@@ -652,4 +620,3 @@ const handleLogout = () => {
   router.push("/login");
 };
 </script>
-

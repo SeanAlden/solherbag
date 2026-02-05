@@ -66,6 +66,7 @@
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import { BASE_URL } from "../../config/api.js";
 
 const categories = ref([]);
 const showModal = ref(false);
@@ -78,7 +79,7 @@ const axiosConfig = {
 };
 
 const fetchCategories = async () => {
-  const res = await axios.get('http://localhost:8000/api/categories', axiosConfig);
+  const res = await axios.get(`${BASE_URL}/categories`, axiosConfig);
   categories.value = res.data;
 };
 
@@ -92,9 +93,9 @@ const openModal = (data = null) => {
 const handleSubmit = async () => {
   try {
     if (isEdit.value) {
-      await axios.put(`http://localhost:8000/api/categories/${currentId.value}`, form.value, axiosConfig);
+      await axios.put(`${BASE_URL}/categories/${currentId.value}`, form.value, axiosConfig);
     } else {
-      await axios.post('http://localhost:8000/api/categories', form.value, axiosConfig);
+      await axios.post(`${BASE_URL}/categories`, form.value, axiosConfig);
     }
     showModal.value = false;
     fetchCategories();
@@ -114,7 +115,7 @@ const confirmDelete = (id) => {
     confirmButtonText: 'Yes, delete it!'
   }).then(async (result) => {
     if (result.isConfirmed) {
-      await axios.delete(`http://localhost:8000/api/categories/${id}`, axiosConfig);
+      await axios.delete(`${BASE_URL}/categories/${id}`, axiosConfig);
       fetchCategories();
       Swal.fire('Deleted!', 'Category has been removed.', 'success');
     }

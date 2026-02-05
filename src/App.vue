@@ -9,6 +9,7 @@ import { useRoute } from "vue-router";
 import Header from "./components/User/Layout/Header.vue";
 import Footer from "./components/User/Layout/Footer.vue";
 import Sidebar from "./components/Admin/Layout/Sidebar.vue";
+import AdminHeader from "./components/Admin/Layout/AdminHeader.vue";
 
 const route = useRoute();
 </script>
@@ -27,7 +28,7 @@ const route = useRoute();
     <Footer v-if="!route.meta.hideHeaderFooter" />
   </div> -->
 
-  <div class="flex flex-col bg-[#F3F4F6] min-h-screen">
+  <!-- <div class="flex flex-col bg-[#F3F4F6] min-h-screen">
     <Header v-if="!route.meta.hideHeaderFooter" />
 
     <div v-if="route.meta.isAdmin" class="flex min-h-screen">
@@ -36,6 +37,31 @@ const route = useRoute();
       <main class="flex-grow bg-gray-100 p-8 overflow-y-auto">
         <router-view />
       </main>
+    </div>
+
+    <main
+      v-else
+      class="flex-grow"
+      :class="[!route.meta.hideHeaderFooter ? 'pt-20 md:pt-24' : '']"
+    >
+      <router-view />
+    </main>
+
+    <Footer v-if="!route.meta.hideHeaderFooter" />
+  </div> -->
+
+  <div class="flex flex-col bg-[#F3F4F6] min-h-screen">
+    <Header v-if="!route.meta.hideHeaderFooter" />
+
+    <div v-if="route.meta.isAdmin" class="flex min-h-screen">
+      <Sidebar class="flex-shrink-0" />
+
+      <div class="flex flex-col flex-grow min-w-0">
+        <AdminHeader />
+        <main class="flex-grow bg-gray-100 p-8 overflow-y-auto">
+          <router-view />
+        </main>
+      </div>
     </div>
 
     <main

@@ -1,7 +1,11 @@
 <template>
-  <aside
+  <!-- <aside
     :class="[isCollapsed ? 'w-20' : 'w-64']"
     class="relative flex flex-col bg-white shadow-lg border-gray-200 border-r min-h-screen transition-all duration-300 ease-in-out"
+  > -->
+  <aside
+    :class="[isCollapsed ? 'w-20' : 'w-64']"
+    class="top-0 z-40 relative sticky flex flex-col bg-white shadow-lg border-gray-200 border-r h-screen transition-all duration-300 ease-in-out"
   >
     <button
       @click="toggleSidebar"
@@ -98,11 +102,11 @@ import { useRouter } from "vue-router";
 
 const router = useRouter();
 const isCollapsed = ref(false);
-const userName = ref('Admin'); // Default value
+const userName = ref("Admin"); // Default value
 
 // Ambil Nama dari LocalStorage saat komponen dimuat
 const getUserData = () => {
-  const user = localStorage.getItem('user');
+  const user = localStorage.getItem("user");
   if (user) {
     const parsedUser = JSON.parse(user);
     userName.value = parsedUser.first_name;
@@ -139,7 +143,7 @@ const menuItems = [
   {
     name: "Users",
     path: "/admin/user_list",
-    icon: '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>',
+    icon: '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>',
   },
 ];
 
@@ -167,6 +171,6 @@ onUnmounted(() => {
 
 const handleLogout = () => {
   localStorage.clear();
-  router.push("/admin/login");
+  router.push("/loginadmin");
 };
 </script>

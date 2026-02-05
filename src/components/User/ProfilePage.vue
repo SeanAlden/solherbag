@@ -51,6 +51,9 @@
                 {{ userData.first_name }} {{ userData.last_name }}
               </p>
               <p class="text-gray-400">{{ userData.email }}</p>
+              <p class="text-gray-400 text-sm italic">
+                {{ userData.phone || "No phone number added" }}
+              </p>
             </div>
             <button
               @click="openInfoModal"
@@ -141,6 +144,12 @@
             placeholder="Email"
             class="bg-gray-50 p-3 border rounded-xl outline-none w-full"
             required
+          />
+          <input
+            v-model="infoForm.phone"
+            type="tel"
+            placeholder="Phone Number (e.g. 0812345678)"
+            class="bg-gray-50 p-3 border rounded-xl outline-none w-full"
           />
           <div class="flex gap-3 pt-4">
             <button
@@ -401,7 +410,6 @@ import Swal from "sweetalert2";
 import { Country, State } from "country-state-city";
 import { BASE_URL } from "../../config/api.js";
 
-
 const addresses = ref([]);
 const showModal = ref(false);
 const isEdit = ref(false);
@@ -412,7 +420,7 @@ const userData = ref(null);
 const showInfoModal = ref(false);
 const showPasswordModal = ref(false);
 
-const infoForm = ref({ first_name: "", last_name: "", email: "" });
+const infoForm = ref({ first_name: "", last_name: "", email: "", phone: "" });
 const passForm = ref({
   old_password: "",
   password: "",
@@ -424,6 +432,7 @@ const openInfoModal = () => {
     first_name: userData.value.first_name,
     last_name: userData.value.last_name,
     email: userData.value.email,
+    phone: userData.value.phone || "",
   };
   showInfoModal.value = true;
 };
@@ -436,16 +445,12 @@ const handleImageUpdate = async (e) => {
   formData.append("image", file);
 
   try {
-    const res = await axios.post(
-      `${BASE_URL}/user/update-image`,
-      formData,
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-          "Content-Type": "multipart/form-data",
-        },
+    const res = await axios.post(`${BASE_URL}/user/update-image`, formData, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        "Content-Type": "multipart/form-data",
       },
-    );
+    });
 
     if (res.data.user) {
       updateUserData(res.data.user);
@@ -484,13 +489,9 @@ const submitInfoUpdate = async () => {
 
 const submitPasswordUpdate = async () => {
   try {
-    await axios.post(
-      `${BASE_URL}/user/update-password`,
-      passForm.value,
-      {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      },
-    );
+    await axios.post(`${BASE_URL}/user/update-password`, passForm.value, {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    });
     showPasswordModal.value = false;
     passForm.value = {
       old_password: "",

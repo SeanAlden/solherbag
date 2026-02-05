@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <div class="bg-white shadow-sm p-8 border border-gray-100 rounded-2xl">
     <div class="flex justify-between items-center mb-8">
       <h1 class="font-bold text-gray-800 text-2xl">Products</h1>
@@ -29,10 +29,6 @@
             class="hover:bg-gray-50 border-gray-50 border-b transition"
           >
             <td class="py-4">
-              <!-- <img
-                :src="`http://localhost:8000/storage/${p.image}`"
-                class="rounded-lg w-16 h-16 object-cover"
-              /> -->
               <img
                 :src="p.image"
                 class="rounded-lg w-16 h-16 object-cover"
@@ -108,4 +104,184 @@ const formatPrice = (v) =>
     v,
   );
 onMounted(fetchProducts);
+</script> -->
+
+<template>
+  <div class="bg-white shadow-sm p-8 border border-gray-100 rounded-2xl">
+    <div class="flex md:flex-row flex-col justify-between items-start md:items-center gap-4 mb-8">
+      <h1 class="font-bold text-gray-800 text-2xl">Products</h1>
+      
+      <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+        <div class="relative flex-grow md:flex-grow-0">
+          <span class="left-0 absolute inset-y-0 flex items-center pl-3 text-gray-400">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </span>
+          <input 
+            v-model="searchQuery" 
+            type="text" 
+            placeholder="Search product name..." 
+            class="bg-gray-50 py-2 pr-4 pl-10 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-black w-full md:w-64 text-sm transition"
+          />
+        </div>
+
+        <select 
+          v-model="selectedCategory" 
+          class="bg-gray-50 px-4 py-2 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-black h-[42px] text-gray-700 text-sm transition"
+        >
+          <option value="">All Categories</option>
+          <option v-for="cat in categories" :key="cat.id" :value="cat.name">
+            {{ cat.name }}
+          </option>
+        </select>
+
+        <router-link
+          to="/admin/products/add"
+          class="flex items-center bg-black hover:bg-gray-800 px-6 py-2 rounded-xl h-[42px] font-bold text-white whitespace-nowrap transition"
+        >+ New Product</router-link>
+      </div>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left">
+        <thead>
+          <tr class="border-b text-gray-400 text-xs uppercase tracking-widest">
+            <th class="pb-4">Image</th>
+            <th class="pb-4">Code</th>
+            <th class="pb-4">Name</th>
+            <th class="pb-4">Category</th>
+            <th class="pb-4">Price</th>
+            <th class="pb-4">Stock</th>
+            <th class="pb-4 text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="text-gray-600">
+          <tr
+            v-for="p in paginatedProducts"
+            :key="p.id"
+            class="hover:bg-gray-50 border-gray-50 border-b transition"
+          >
+            <td class="py-4">
+              <img :src="p.image" class="shadow-sm rounded-lg w-16 h-16 object-cover" alt="Product Image" />
+            </td>
+            <td class="py-4 font-mono text-sm">{{ p.code }}</td>
+            <td class="py-4 font-bold text-gray-800">{{ p.name }}</td>
+            <td class="py-4">
+              <span class="bg-blue-50 px-3 py-1 rounded-full font-medium text-blue-600 text-xs">
+                {{ p.category?.name }}
+              </span>
+            </td>
+            <td class="py-4 font-bold">{{ formatPrice(p.price) }}</td>
+            <td class="py-4">
+              <span :class="p.stock < 5 ? 'text-red-500 font-bold' : ''">
+                {{ p.stock }} pcs
+              </span>
+            </td>
+            <td class="py-4 text-center">
+              <router-link :to="`/admin/products/edit/${p.id}`" class="mr-4 font-medium text-amber-500 hover:text-amber-600">Edit</router-link>
+              <button @click="confirmDelete(p.id)" class="font-medium text-red-500 hover:text-red-600">Delete</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div v-if="filteredProducts.length > 0" class="flex justify-between items-center mt-8 pt-6 border-gray-50 border-t">
+      <p class="text-gray-400 text-sm">
+        Showing {{ (currentPage - 1) * itemsPerPage + 1 }} to 
+        {{ Math.min(currentPage * itemsPerPage, filteredProducts.length) }} 
+        of {{ filteredProducts.length }} products
+      </p>
+      
+      <div class="flex gap-2">
+        <button @click="currentPage--" :disabled="currentPage === 1" class="hover:bg-gray-50 disabled:opacity-30 px-4 py-2 border rounded-xl transition">Previous</button>
+        <button 
+          v-for="page in totalPages" :key="page" 
+          @click="currentPage = page"
+          :class="currentPage === page ? 'bg-black text-white' : 'hover:bg-gray-50'"
+          class="border rounded-xl w-10 h-10 font-medium transition"
+        >{{ page }}</button>
+        <button @click="currentPage++" :disabled="currentPage === totalPages" class="hover:bg-gray-50 disabled:opacity-30 px-4 py-2 border rounded-xl transition">Next</button>
+      </div>
+    </div>
+
+    <div v-else class="py-20 text-gray-400 text-center">
+      <p>No products found matching your search or filter.</p>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted, computed, watch } from "vue";
+import axios from "axios";
+import Swal from "sweetalert2";
+import { BASE_URL } from "../../config/api.js";
+
+const products = ref([]);
+const categories = ref([]);
+const selectedCategory = ref("");
+const searchQuery = ref(""); // State baru untuk pencarian
+
+const currentPage = ref(1);
+const itemsPerPage = 5;
+
+const axiosConfig = {
+  headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+};
+
+// Logika Gabungan: Filter Kategori DAN Pencarian Nama
+const filteredProducts = computed(() => {
+  return products.value.filter(p => {
+    const matchesCategory = selectedCategory.value === "" || p.category?.name === selectedCategory.value;
+    const matchesSearch = p.name.toLowerCase().includes(searchQuery.value.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
+});
+
+const totalPages = computed(() => Math.ceil(filteredProducts.value.length / itemsPerPage));
+
+const paginatedProducts = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage;
+  const end = start + itemsPerPage;
+  return filteredProducts.value.slice(start, end);
+});
+
+// Reset ke halaman 1 jika filter atau pencarian berubah
+watch([selectedCategory, searchQuery], () => {
+  currentPage.value = 1;
+});
+
+const fetchData = async () => {
+  try {
+    const [resProd, resCat] = await Promise.all([
+      axios.get(`${BASE_URL}/products`, axiosConfig),
+      axios.get(`${BASE_URL}/categories`, axiosConfig)
+    ]);
+    products.value = resProd.data;
+    categories.value = resCat.data;
+  } catch (error) {
+    console.error("Fetch error:", error);
+  }
+};
+
+const confirmDelete = (id) => {
+  Swal.fire({
+    title: "Are you sure?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#000",
+    confirmButtonText: "Yes, delete it!",
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      await axios.delete(`${BASE_URL}/products/${id}`, axiosConfig);
+      fetchData();
+      Swal.fire("Deleted!", "Success", "success");
+    }
+  });
+};
+
+const formatPrice = (v) => new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(v);
+
+onMounted(fetchData);
 </script>

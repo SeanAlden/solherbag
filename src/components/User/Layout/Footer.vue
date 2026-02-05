@@ -7,7 +7,9 @@
         class="flex md:flex-row flex-col justify-between items-start gap-10 mb-6 pb-12 border-gray-400 border-b"
       >
         <div class="max-w-sm">
-          <h3 class="mb-4 font-normal text-black text-2xl">Join our email list</h3>
+          <h3 class="mb-4 font-normal text-black text-2xl">
+            Join our email list
+          </h3>
           <p class="text-gray-600 text-sm">
             Get exclusive deals and early access to new products.
           </p>
@@ -31,21 +33,25 @@
         <nav
           class="flex justify-center space-x-6 mb-4 font-bold text-xs uppercase tracking-wider"
         >
-          <a href="#" class="hover:underline">About Us</a>
-          <a href="#" class="hover:underline">Customer Care</a>
-          <a href="#" class="hover:underline">FAQs</a>
+          <router-link to="/about-us" class="hover:underline"
+            >About Us</router-link
+          >
+          <router-link to="/customer-care" class="hover:underline"
+            >Customer Care</router-link
+          >
+          <router-link to="/faq" class="hover:underline"
+            >FAQs</router-link
+          >
         </nav>
-        <div class="flex justify-center space-x-4 text-[10px] text-gray-500 uppercase">
+        <div
+          class="flex justify-center space-x-4 text-[10px] text-gray-500 uppercase"
+        >
           <span>© 2026 Solher Bag</span>
           <a href="#" class="hover:text-black">Terms and Policies</a>
         </div>
       </div>
     </div>
 
-    <!-- <a href="https://wa.me/yournumber" target="_blank" class="right-8 bottom-8 fixed hover:scale-110 transition-transform">
-      <img src="../../assets/wa_icon.png" alt="WA" class="w-12 h-12" />
-    </a> -->
-		
     <a
       href="https://wa.me/628883888585?text=Hi"
       target="_blank"

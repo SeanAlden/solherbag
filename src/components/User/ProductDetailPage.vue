@@ -1,35 +1,48 @@
-<template>
+<!-- <template>
   <div v-if="product" class="mx-auto px-6 py-12 md:py-24 max-w-7xl">
     <div class="flex md:flex-row flex-col gap-12 lg:gap-24">
       <div class="w-full md:w-1/2">
         <div class="bg-gray-100 aspect-[4/5] overflow-hidden">
-          <!-- <img 
-            :src="`http://localhost:8000/storage/${product.image}`" 
-            class="w-full h-full object-cover" 
-          /> -->
-          <img 
-            :src="product.image" 
-            class="w-full h-full object-cover" 
-          />
+          <img :src="product.image" class="w-full h-full object-cover" />
         </div>
       </div>
 
       <div class="space-y-8 w-full md:w-1/2">
         <div class="space-y-4 md:text-left text-center">
-          <h1 class="font-serif text-3xl md:text-5xl uppercase tracking-tighter">
+          <h1
+            class="font-serif text-3xl md:text-5xl uppercase tracking-tighter"
+          >
             {{ product.name }}
           </h1>
-          <p class="text-gray-600 text-xl">{{ formatPrice(product.price) }}</p>
+          <div class="flex justify-center md:justify-start items-center gap-4">
+            <template v-if="product.discount_price">
+              <p class="font-bold text-red-600 text-2xl">
+                {{ formatPrice(product.discount_price) }}
+              </p>
+              <p class="text-gray-400 text-lg line-through">
+                {{ formatPrice(product.price) }}
+              </p>
+              <span
+                class="bg-red-100 px-2 py-1 rounded font-bold text-red-600 text-xs"
+              >
+                SAVE
+                {{ calculateDiscount(product.price, product.discount_price) }}%
+              </span>
+            </template>
+            <p v-else class="text-gray-600 text-2xl">
+              {{ formatPrice(product.price) }}
+            </p>
+          </div>
         </div>
 
         <div class="flex sm:flex-row flex-col gap-4 pt-4">
-          <button 
+          <button
             @click="handleAction"
             class="flex-1 hover:bg-black py-4 border-2 border-black font-bold hover:text-white text-xs uppercase tracking-widest transition"
           >
             Add to Cart
           </button>
-          <button 
+          <button
             @click="handleAction"
             class="flex-1 bg-black hover:bg-gray-800 py-4 font-bold text-white text-xs uppercase tracking-widest transition"
           >
@@ -38,16 +51,27 @@
         </div>
 
         <div class="pt-8 border-gray-200 border-t divide-y divide-gray-200">
-          <div v-for="section in ['Description', 'Care', 'Design']" :key="section" class="py-4">
-            <button 
-              @click="activeSection = activeSection === section ? null : section"
+          <div
+            v-for="section in ['Description', 'Care', 'Design']"
+            :key="section"
+            class="py-4"
+          >
+            <button
+              @click="
+                activeSection = activeSection === section ? null : section
+              "
               class="flex justify-between items-center w-full font-medium text-xs text-left uppercase tracking-widest"
             >
               {{ section }}
-              <span>{{ activeSection === section ? '−' : '+' }}</span>
+              <span>{{ activeSection === section ? "−" : "+" }}</span>
             </button>
-            <div v-show="activeSection === section" class="mt-4 text-gray-600 text-sm leading-relaxed">
-              {{ product[section.toLowerCase()] || 'No information available.' }}
+            <div
+              v-show="activeSection === section"
+              class="mt-4 text-gray-600 text-sm leading-relaxed"
+            >
+              {{
+                product[section.toLowerCase()] || "No information available."
+              }}
             </div>
           </div>
         </div>
@@ -66,28 +90,55 @@ import { BASE_URL } from "../../config/api.js";
 const route = useRoute();
 const router = useRouter();
 const product = ref(null);
-const activeSection = ref('Description');
+const activeSection = ref("Description");
 
 const fetchProductDetail = async () => {
   try {
     const res = await axios.get(`${BASE_URL}/products/${route.params.id}`);
     product.value = res.data;
   } catch (error) {
-    router.push('/catalog');
+    router.push("/catalog");
   }
 };
 
-const handleAction = () => {
-  const token = localStorage.getItem('token');
+const handleAction = async (type) => {
+  const token = localStorage.getItem("token");
   if (!token) {
     Swal.fire({
-      icon: 'info',
-      title: 'Login Required',
-      text: 'Please login to continue shopping.',
-      confirmButtonColor: '#000'
-    }).then(() => router.push('/login'));
-  } else {
-    Swal.fire('Success', 'Item added to process (Feature coming soon)', 'success');
+      icon: "info",
+      title: "Login Required",
+      confirmButtonColor: "#000",
+    }).then(() => router.push("/login"));
+    return;
+  }
+
+  try {
+    await axios.post(
+      `${BASE_URL}/carts`,
+      {
+        product_id: product.value.id,
+        quantity: 1,
+      },
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    );
+
+    if (type === "buy") {
+      // Logic Checkout langsung (Coming Soon)
+      Swal.fire("Redirecting...", "Proceeding to checkout", "success");
+    } else {
+      Swal.fire({
+        title: "Added to Bag",
+        icon: "success",
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 3000,
+      });
+    }
+  } catch (error) {
+    Swal.fire("Error", error.response.data.message || "Failed to add", "error");
   }
 };
 
@@ -98,5 +149,182 @@ const formatPrice = (value) => {
   }).format(value);
 };
 
+const calculateDiscount = (price, discountPrice) => {
+  return Math.round(((price - discountPrice) / price) * 100);
+};
+
+onMounted(fetchProductDetail);
+</script> -->
+
+<template>
+  <div v-if="isLoading" class="z-[100] fixed inset-0 flex flex-col justify-center items-center bg-white">
+    <div class="border-4 border-gray-100 border-t-black rounded-full w-12 h-12 animate-spin"></div>
+    <p class="mt-4 font-serif text-gray-400 italic animate-pulse">Loading Solher piece...</p>
+  </div>
+
+  <div v-else-if="product" class="mx-auto px-6 py-12 md:py-24 max-w-7xl animate-fade-in">
+    <div class="flex md:flex-row flex-col gap-12 lg:gap-24">
+      <div class="w-full md:w-1/2">
+        <div class="bg-gray-100 aspect-[4/5] overflow-hidden">
+          <img :src="product.image" class="shadow-sm w-full h-full object-cover" alt="Product Image" />
+        </div>
+      </div>
+
+      <div class="space-y-8 w-full md:w-1/2">
+        <div class="space-y-4 md:text-left text-center">
+          <h1 class="font-serif text-3xl md:text-5xl uppercase tracking-tighter">
+            {{ product.name }}
+          </h1>
+          <div class="flex justify-center md:justify-start items-center gap-4">
+            <template v-if="product.discount_price">
+              <p class="font-bold text-red-600 text-2xl">
+                {{ formatPrice(product.discount_price) }}
+              </p>
+              <p class="text-gray-400 text-lg line-through">
+                {{ formatPrice(product.price) }}
+              </p>
+              <span class="bg-red-100 px-2 py-1 rounded font-bold text-red-600 text-xs">
+                SAVE {{ calculateDiscount(product.price, product.discount_price) }}%
+              </span>
+            </template>
+            <p v-else class="text-gray-600 text-2xl">
+              {{ formatPrice(product.price) }}
+            </p>
+          </div>
+        </div>
+
+        <div class="flex sm:flex-row flex-col gap-4 pt-4">
+          <button
+            @click="handleAction('cart')"
+            class="flex-1 hover:bg-black py-4 border-2 border-black font-bold hover:text-white text-xs uppercase tracking-widest transition"
+          >
+            Add to Cart
+          </button>
+          <button
+            @click="handleAction('buy')"
+            class="flex-1 bg-black hover:bg-gray-800 py-4 font-bold text-white text-xs uppercase tracking-widest transition"
+          >
+            Buy It Now
+          </button>
+        </div>
+
+        <div class="pt-8 border-gray-200 border-t divide-y divide-gray-200">
+          <div v-for="section in ['Description', 'Care', 'Design']" :key="section" class="py-4">
+            <button
+              @click="activeSection = activeSection === section ? null : section"
+              class="group flex justify-between items-center w-full font-medium text-xs text-left uppercase tracking-widest"
+            >
+              <span class="group-hover:text-gray-500 transition">{{ section }}</span>
+              <span>{{ activeSection === section ? "−" : "+" }}</span>
+            </button>
+            <transition name="fade">
+              <div v-show="activeSection === section" class="mt-4 text-gray-600 text-sm leading-relaxed">
+                {{ product[section.toLowerCase()] || "No information available." }}
+              </div>
+            </transition>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import axios from "axios";
+import Swal from "sweetalert2";
+import { BASE_URL } from "../../config/api.js";
+
+const route = useRoute();
+const router = useRouter();
+const product = ref(null);
+const activeSection = ref("Description");
+const isLoading = ref(true); // Default true saat masuk halaman
+
+const fetchProductDetail = async () => {
+  isLoading.value = true;
+  try {
+    const res = await axios.get(`${BASE_URL}/products/${route.params.id}`);
+    product.value = res.data;
+  } catch (error) {
+    console.error("Error fetching detail:", error);
+    router.push("/catalog");
+  } finally {
+    // Memberikan delay halus agar transisi spinner tidak mengejutkan
+    setTimeout(() => {
+      isLoading.value = false;
+    }, 600);
+  }
+};
+
+const handleAction = async (type) => {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    Swal.fire({
+      icon: "info",
+      title: "Login Required",
+      text: "Please login to manage your bag.",
+      confirmButtonColor: "#000",
+    }).then(() => router.push("/login"));
+    return;
+  }
+
+  try {
+    await axios.post(
+      `${BASE_URL}/carts`,
+      { product_id: product.value.id, quantity: 1 },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    if (type === "buy") {
+      Swal.fire("Success", "Proceeding to checkout...", "success")
+        .then(() => router.push("/orderpage"));
+    } else {
+      Swal.fire({
+        title: "Added to Bag",
+        icon: "success",
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 3000,
+      });
+    }
+  } catch (error) {
+    Swal.fire("Error", error.response?.data?.message || "Failed to add", "error");
+  }
+};
+
+const formatPrice = (value) => {
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0,
+  }).format(value);
+};
+
+const calculateDiscount = (price, discountPrice) => {
+  return Math.round(((price - discountPrice) / price) * 100);
+};
+
 onMounted(fetchProductDetail);
 </script>
+
+<style scoped>
+.animate-fade-in {
+  animation: fadeIn 0.8s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Transisi untuk akordeon */
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+}
+</style>

@@ -6,7 +6,7 @@ import ContactPage from '../components/User/ContactPage.vue'
 import LoginPage from '../components/User/LoginPage.vue'
 import RegisterPage from '../components/User/RegisterPage.vue'
 import ProfilePage from '../components/User/ProfilePage.vue'
-import OrderPage from '../components/User/OrderPage.vue'
+import OrderPage from '../components/User/OrderManagementPage.vue'
 import AdminLoginPage from '../components/Admin/AdminLoginPage.vue'
 import DashboardPage from '../components/Admin/DashboardPage.vue'
 import CategoryPage from '../components/Admin/CategoryPage.vue'
@@ -19,6 +19,9 @@ import ProductDetailPage from '../components/User/ProductDetailPage.vue'
 import UserListPage from '../components/Admin/UserListPage.vue'
 import UserDetailPage from '../components/Admin/UserDetailPage.vue'
 import MessageViewPage from '../components/Admin/MessageViewPage.vue'
+import CustomerCarePage from '../components/User/CustomerCarePage.vue'
+import FaqPage from '../components/User/FaqPage.vue'
+import AboutUsPage from '../components/User/AboutUsPage.vue'
 
 // Import komponen lainnya (Anda bisa buat file kosong dulu untuk Catalog & Contact)
 // const CatalogPage = { template: '<div class="py-20 text-center text-3xl">Catalog Page Coming Soon</div>' }
@@ -29,7 +32,7 @@ const routes = [
     { path: '/catalog', name: 'Catalog', component: CatalogPage },
     { path: '/contact', name: 'Contact', component: ContactPage },
     { path: '/login', name: 'Login', component: LoginPage, meta: { hideHeaderFooter: true } },
-    { path: '/loginadmin', name: 'Admin Login', component: AdminLoginPage, meta: { hideHeaderFooter: true } },
+    { path: '/loginadmin', name: 'AdminLogin', component: AdminLoginPage, meta: { hideHeaderFooter: true } },
     {
         path: '/register',
         name: 'Register',
@@ -44,6 +47,9 @@ const routes = [
         meta: { requiresAuth: true }
     },
     { path: '/orderpage', name: 'Orders', component: OrderPage, meta: { requiresAuth: true } },
+    { path: '/customer-care', name: 'CustomerCare', component: CustomerCarePage },
+    { path: '/faq', name: 'Faq', component: FaqPage },
+    { path: '/about-us', name: 'AboutUs', component: AboutUsPage },
     {
         path: '/admin/dashboard', name: 'Dashboard', component: DashboardPage,
         meta: {

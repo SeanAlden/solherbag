@@ -18,13 +18,35 @@
           class="bg-gray-100 p-3 rounded-xl w-full"
           required
         />
-        <input
+        <!-- <input
           v-model="form.price"
           type="number"
           placeholder="Price"
           class="bg-gray-100 p-3 rounded-xl w-full"
           required
-        />
+        /> -->
+        <div class="gap-4 grid grid-cols-2">
+          <div>
+            <label class="block mb-1 font-bold text-sm">Original Price</label>
+            <input
+              v-model="form.price"
+              type="number"
+              class="bg-gray-100 p-3 rounded-xl w-full"
+              required
+            />
+          </div>
+          <div>
+            <label class="block mb-1 font-bold text-sm"
+              >Discount Price (Optional)</label
+            >
+            <input
+              v-model="form.discount_price"
+              type="number"
+              placeholder="Set if on sale"
+              class="bg-gray-100 p-3 rounded-xl w-full"
+            />
+          </div>
+        </div>
         <input
           v-model="form.stock"
           type="number"

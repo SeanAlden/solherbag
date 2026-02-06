@@ -23,6 +23,7 @@ import CustomerCarePage from '../components/User/CustomerCarePage.vue'
 import FaqPage from '../components/User/FaqPage.vue'
 import AboutUsPage from '../components/User/AboutUsPage.vue'
 import InactiveProductPage from '../components/Admin/InactiveProductPage.vue'
+import TransactionDetailPage from '../components/Admin/TransactionDetailPage.vue'
 
 // Import komponen lainnya (Anda bisa buat file kosong dulu untuk Catalog & Contact)
 // const CatalogPage = { template: '<div class="py-20 text-center text-3xl">Catalog Page Coming Soon</div>' }
@@ -109,6 +110,14 @@ const routes = [
     },
     {
         path: '/admin/transactions', name: 'Transaction', component: TransactionPage,
+        meta: {
+            requiresAuth: true,
+            hideHeaderFooter: true, // Sembunyikan Header/Footer standar
+            isAdmin: true           // Trigger untuk Sidebar layout
+        }
+    },
+    {
+        path: '/admin/transaction/detail', name: 'TransactionDetail', component: TransactionDetailPage,
         meta: {
             requiresAuth: true,
             hideHeaderFooter: true, // Sembunyikan Header/Footer standar

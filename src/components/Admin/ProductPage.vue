@@ -249,23 +249,48 @@ onMounted(fetchData);
 </script> -->
 
 <template>
-  <div class="relative bg-white shadow-sm p-8 border border-gray-100 rounded-2xl min-h-[500px]">
-    
-    <div v-if="isLoading" class="z-20 absolute inset-0 flex justify-center items-center bg-white/60 backdrop-blur-[2px] rounded-2xl transition-all duration-300">
+  <div
+    class="relative bg-white shadow-sm p-8 border border-gray-100 rounded-2xl min-h-[500px]"
+  >
+    <div
+      v-if="isLoading"
+      class="z-20 absolute inset-0 flex justify-center items-center bg-white/60 backdrop-blur-[2px] rounded-2xl transition-all duration-300"
+    >
       <div class="flex flex-col items-center">
-        <div class="border-4 border-gray-200 border-t-black rounded-full w-12 h-12 animate-spin"></div>
-        <p class="mt-4 font-bold text-black text-xs uppercase tracking-widest animate-pulse">Loading Products...</p>
+        <div
+          class="border-4 border-gray-200 border-t-black rounded-full w-12 h-12 animate-spin"
+        ></div>
+        <p
+          class="mt-4 font-bold text-black text-xs uppercase tracking-widest animate-pulse"
+        >
+          Loading Products...
+        </p>
       </div>
     </div>
 
-    <div class="flex md:flex-row flex-col justify-between items-start md:items-center gap-4 mb-8">
+    <div
+      class="flex md:flex-row flex-col justify-between items-start md:items-center gap-4 mb-8"
+    >
       <h1 class="font-bold text-gray-800 text-2xl">Products</h1>
 
       <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
         <div class="relative flex-grow md:flex-grow-0">
-          <span class="left-0 absolute inset-y-0 flex items-center pl-3 text-gray-400">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          <span
+            class="left-0 absolute inset-y-0 flex items-center pl-3 text-gray-400"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-5 h-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
             </svg>
           </span>
           <input
@@ -285,6 +310,13 @@ onMounted(fetchData);
             {{ cat.name }}
           </option>
         </select>
+
+        <router-link
+          to="/admin/products/inactive"
+          class="flex items-center hover:bg-gray-50 px-6 py-2 border border-black rounded-xl h-[42px] font-bold text-black transition"
+        >
+          Inactive Archive
+        </router-link>
 
         <router-link
           to="/admin/products/add"
@@ -419,7 +451,7 @@ import { BASE_URL } from "../../config/api.js";
 const products = ref([]);
 const categories = ref([]);
 const selectedCategory = ref("");
-const searchQuery = ref(""); 
+const searchQuery = ref("");
 const isLoading = ref(false); // State loading
 
 const currentPage = ref(1);

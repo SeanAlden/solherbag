@@ -117,7 +117,7 @@ const routes = [
         }
     },
     {
-        path: '/admin/transaction/detail', name: 'TransactionDetail', component: TransactionDetailPage,
+        path: '/admin/transaction/:id', name: 'TransactionDetail', component: TransactionDetailPage,
         meta: {
             requiresAuth: true,
             hideHeaderFooter: true, // Sembunyikan Header/Footer standar

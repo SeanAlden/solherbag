@@ -147,6 +147,7 @@ import { useRouter } from "vue-router";
 
 const transactions = ref([]);
 const isLoading = ref(false);
+const router = useRouter();
 
 const goToDetail = (trx) => {
   router.push({

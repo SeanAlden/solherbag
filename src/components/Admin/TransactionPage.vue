@@ -25,7 +25,7 @@
           <tr class="border-b text-gray-400 text-xs uppercase tracking-widest">
             <th class="pb-4">Order ID & Date</th>
             <th class="pb-4">Customer</th>
-            <th class="pb-4">Items</th>
+            <th class="pb-4">Items</th> 
             <th class="pb-4">Total Amount</th>
             <th class="pb-4">Status</th>
             <th class="pb-4 text-center">Update Status</th>

@@ -157,22 +157,43 @@ onMounted(fetchProductDetail);
 </script> -->
 
 <template>
-  <div v-if="isLoading" class="z-[100] fixed inset-0 flex flex-col justify-center items-center bg-white">
-    <div class="border-4 border-gray-100 border-t-black rounded-full w-12 h-12 animate-spin"></div>
-    <p class="mt-4 font-serif text-gray-400 italic animate-pulse">Loading Solher piece...</p>
+  <div
+    v-if="isLoading"
+    class="z-[100] fixed inset-0 flex flex-col justify-center items-center bg-white"
+  >
+    <div
+      class="border-4 border-gray-100 border-t-black rounded-full w-12 h-12 animate-spin"
+    ></div>
+    <p class="mt-4 font-serif text-gray-400 italic animate-pulse">
+      Loading Solher piece...
+    </p>
   </div>
 
-  <div v-else-if="product" class="mx-auto px-6 py-12 md:py-24 max-w-7xl animate-fade-in">
+  <div
+    v-else-if="product"
+    class="mx-auto px-6 py-12 md:py-24 max-w-7xl animate-fade-in"
+  >
     <div class="flex md:flex-row flex-col gap-12 lg:gap-24">
       <div class="w-full md:w-1/2">
         <div class="bg-gray-100 aspect-[4/5] overflow-hidden">
-          <img :src="product.image" class="shadow-sm w-full h-full object-cover" alt="Product Image" />
+          <!-- <img
+            :src="product.image"
+            class="shadow-sm w-full h-full object-cover"
+            alt="Product Image"
+          /> -->
+          <img
+            :src="product.image"
+            class="shadow-sm w-full h-full object-cover main-product-image"
+            alt="Product Image"
+          />
         </div>
       </div>
 
       <div class="space-y-8 w-full md:w-1/2">
         <div class="space-y-4 md:text-left text-center">
-          <h1 class="font-serif text-3xl md:text-5xl uppercase tracking-tighter">
+          <h1
+            class="font-serif text-3xl md:text-5xl uppercase tracking-tighter"
+          >
             {{ product.name }}
           </h1>
           <div class="flex justify-center md:justify-start items-center gap-4">
@@ -183,8 +204,11 @@ onMounted(fetchProductDetail);
               <p class="text-gray-400 text-lg line-through">
                 {{ formatPrice(product.price) }}
               </p>
-              <span class="bg-red-100 px-2 py-1 rounded font-bold text-red-600 text-xs">
-                SAVE {{ calculateDiscount(product.price, product.discount_price) }}%
+              <span
+                class="bg-red-100 px-2 py-1 rounded font-bold text-red-600 text-xs"
+              >
+                SAVE
+                {{ calculateDiscount(product.price, product.discount_price) }}%
               </span>
             </template>
             <p v-else class="text-gray-600 text-2xl">
@@ -209,17 +233,30 @@ onMounted(fetchProductDetail);
         </div>
 
         <div class="pt-8 border-gray-200 border-t divide-y divide-gray-200">
-          <div v-for="section in ['Description', 'Care', 'Design']" :key="section" class="py-4">
+          <div
+            v-for="section in ['Description', 'Care', 'Design']"
+            :key="section"
+            class="py-4"
+          >
             <button
-              @click="activeSection = activeSection === section ? null : section"
+              @click="
+                activeSection = activeSection === section ? null : section
+              "
               class="group flex justify-between items-center w-full font-medium text-xs text-left uppercase tracking-widest"
             >
-              <span class="group-hover:text-gray-500 transition">{{ section }}</span>
+              <span class="group-hover:text-gray-500 transition">{{
+                section
+              }}</span>
               <span>{{ activeSection === section ? "−" : "+" }}</span>
             </button>
             <transition name="fade">
-              <div v-show="activeSection === section" class="mt-4 text-gray-600 text-sm leading-relaxed">
-                {{ product[section.toLowerCase()] || "No information available." }}
+              <div
+                v-show="activeSection === section"
+                class="mt-4 text-gray-600 text-sm leading-relaxed"
+              >
+                {{
+                  product[section.toLowerCase()] || "No information available."
+                }}
               </div>
             </transition>
           </div>
@@ -247,6 +284,11 @@ const fetchProductDetail = async () => {
   try {
     const res = await axios.get(`${BASE_URL}/products/${route.params.id}`);
     product.value = res.data;
+
+    // TRIGGER TRACKING VIEW
+    const event = new CustomEvent('track-view', { detail: res.data });
+    window.dispatchEvent(event);
+    
   } catch (error) {
     console.error("Error fetching detail:", error);
     router.push("/catalog");
@@ -258,40 +300,176 @@ const fetchProductDetail = async () => {
   }
 };
 
+// const handleAction = async (type) => {
+//   const token = localStorage.getItem("token");
+//   if (!token) {
+//     Swal.fire({
+//       icon: "info",
+//       title: "Login Required",
+//       text: "Please login to manage your bag.",
+//       confirmButtonColor: "#000",
+//     }).then(() => router.push("/login"));
+//     return;
+//   }
+
+//   try {
+//     await axios.post(
+//       `${BASE_URL}/carts`,
+//       { product_id: product.value.id, quantity: 1 },
+//       { headers: { Authorization: `Bearer ${token}` } }
+//     );
+
+//     if (type === "buy") {
+//       Swal.fire("Success", "Proceeding to checkout...", "success")
+//         .then(() => router.push("/orderpage"));
+//     } else {
+//       Swal.fire({
+//         title: "Added to Bag",
+//         icon: "success",
+//         toast: true,
+//         position: "top-end",
+//         showConfirmButton: false,
+//         timer: 3000,
+//       });
+//     }
+//   } catch (error) {
+//     Swal.fire("Error", error.response?.data?.message || "Failed to add", "error");
+//   }
+// };
+
+// --- Di dalam script setup ProductDetailPage.vue ---
+
+// const handleAction = async (type) => {
+//   const token = localStorage.getItem("token");
+//   if (!token) {
+//     Swal.fire({ icon: "info", title: "Login Required", confirmButtonColor: "#000" }).then(() => router.push("/login"));
+//     return;
+//   }
+
+//   // --- START OPTIMISTIC LOGIC ---
+//   // Kirim data produk ke Header secara instan lewat Event Bus
+//   const event = new CustomEvent('optimistic-add-to-cart', { detail: product.value });
+//   window.dispatchEvent(event);
+
+//   if (type !== "buy") {
+//     Swal.fire({
+//       title: "Added to Bag",
+//       icon: "success",
+//       toast: true,
+//       position: "top-center",
+//       showConfirmButton: false,
+//       timer: 2000,
+//     });
+//   }
+//   // --- END OPTIMISTIC LOGIC ---
+
+//   try {
+//     const res = await axios.post(
+//       `${BASE_URL}/carts`,
+//       { product_id: product.value.id, quantity: 1 },
+//       { headers: { Authorization: `Bearer ${token}` } }
+//     );
+
+//     if (type === "buy") {
+//       router.push("/orderpage");
+//     }
+//     // Opsional: fetchCarts ulang di background jika ingin memastikan ID asli dari DB
+//   } catch (error) {
+//     // Jika API gagal (misal stok habis di server), beri notifikasi dan reload data
+//     Swal.fire("Error", error.response?.data?.message || "Failed to sync bag", "error");
+//     // Emit event untuk memaksa Header melakukan fetch ulang data asli
+//     window.dispatchEvent(new Event('refresh-cart'));
+//   }
+// };
+
 const handleAction = async (type) => {
   const token = localStorage.getItem("token");
   if (!token) {
     Swal.fire({
       icon: "info",
       title: "Login Required",
-      text: "Please login to manage your bag.",
       confirmButtonColor: "#000",
     }).then(() => router.push("/login"));
     return;
   }
 
+  // --- 1. START FLY ANIMATION LOGIC ---
+  const productImage = document.querySelector(".main-product-image"); // Pastikan img memiliki class ini
+  const cartIcon = document.querySelector(".cart-icon-header"); // Pastikan icon bag di Header memiliki class ini
+
+  if (productImage && cartIcon) {
+    // Ambil koordinat sumber dan tujuan
+    const imgRect = productImage.getBoundingClientRect();
+    const cartRect = cartIcon.getBoundingClientRect();
+
+    // Buat elemen kloning untuk animasi
+    const flyer = productImage.cloneNode(true);
+    flyer.classList.add("fly-item");
+
+    // Set posisi awal tepat di atas gambar asli
+    Object.assign(flyer.style, {
+      position: "fixed",
+      top: `${imgRect.top}px`,
+      left: `${imgRect.left}px`,
+      width: `${imgRect.width}px`,
+      height: `${imgRect.height}px`,
+      zIndex: "1000",
+      transition: "all 0.8s cubic-bezier(0.42, 0, 0.58, 1)",
+      pointerEvents: "none",
+    });
+
+    document.body.appendChild(flyer);
+
+    // Jalankan animasi ke koordinat keranjang
+    setTimeout(() => {
+      Object.assign(flyer.style, {
+        top: `${cartRect.top}px`,
+        left: `${cartRect.left}px`,
+        width: "20px",
+        height: "20px",
+        opacity: "0.4",
+        transform: "rotate(720deg)",
+      });
+    }, 10);
+
+    // Hapus elemen setelah animasi selesai
+    flyer.addEventListener("transitionend", () => {
+      flyer.remove();
+      // Trigger update data optimistik di Header setelah animasi 'masuk'
+      const event = new CustomEvent("optimistic-add-to-cart", {
+        detail: product.value,
+      });
+      window.dispatchEvent(event);
+    });
+  }
+  // --- END FLY ANIMATION LOGIC ---
+
+  if (type !== "buy") {
+    Swal.fire({
+      title: "Added to Bag",
+      icon: "success",
+      toast: true,
+      position: "top-center",
+      showConfirmButton: false,
+      timer: 2000,
+    });
+  }
+
   try {
-    await axios.post(
+    const res = await axios.post(
       `${BASE_URL}/carts`,
       { product_id: product.value.id, quantity: 1 },
-      { headers: { Authorization: `Bearer ${token}` } }
+      { headers: { Authorization: `Bearer ${token}` } },
     );
 
-    if (type === "buy") {
-      Swal.fire("Success", "Proceeding to checkout...", "success")
-        .then(() => router.push("/orderpage"));
-    } else {
-      Swal.fire({
-        title: "Added to Bag",
-        icon: "success",
-        toast: true,
-        position: "top-end",
-        showConfirmButton: false,
-        timer: 3000,
-      });
-    }
+    if (type === "buy") router.push("/orderpage");
   } catch (error) {
-    Swal.fire("Error", error.response?.data?.message || "Failed to add", "error");
+    Swal.fire(
+      "Error",
+      error.response?.data?.message || "Failed to sync bag",
+      "error",
+    );
+    window.dispatchEvent(new Event("refresh-cart"));
   }
 };
 
@@ -316,15 +494,23 @@ onMounted(fetchProductDetail);
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Transisi untuk akordeon */
-.fade-enter-active, .fade-leave-active {
+.fade-enter-active,
+.fade-leave-active {
   transition: opacity 0.3s ease;
 }
-.fade-enter-from, .fade-leave-to {
+.fade-enter-from,
+.fade-leave-to {
   opacity: 0;
 }
 </style>

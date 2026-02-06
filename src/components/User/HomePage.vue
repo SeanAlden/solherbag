@@ -292,22 +292,22 @@ import v2_img3 from "../../assets/products/jin_zun.jpg";
 import v2_img4 from "../../assets/products/jiang_ye.jpg";
 import v2_img5 from "../../assets/products/hong_yun.jpg";
 
-const volumeOneProducts = ref([
-  { name: "Helia Series", price: 2558000, image: img1 },
-  { name: "ETERNA SERIES", price: 3225000, image: img2 },
-  { name: "SOLENNE SERIES", price: 3445000, image: img3 },
-  { name: "Glisenta Series", price: 3225000, image: img4 },
-  { name: "MARQUESA SERIES", price: 2940000, image: img5 },
-  { name: "ALLEGRA SERIES", price: 3100000, image: img6 },
-]);
+// const volumeOneProducts = ref([
+//   { name: "Helia Series", price: 2558000, image: img1 },
+//   { name: "ETERNA SERIES", price: 3225000, image: img2 },
+//   { name: "SOLENNE SERIES", price: 3445000, image: img3 },
+//   { name: "Glisenta Series", price: 3225000, image: img4 },
+//   { name: "MARQUESA SERIES", price: 2940000, image: img5 },
+//   { name: "ALLEGRA SERIES", price: 3100000, image: img6 },
+// ]);
 
-const volumeTwoProducts = ref([
-  { name: "Mǎn Táng Hóng", price: 3450000, image: v2_img1 },
-  { name: "Yù Pái", price: 2850000, image: v2_img2 },
-  { name: "Jīn Zūn", price: 3100000, image: v2_img3 },
-  { name: "Jiāng Yè", price: 2750000, image: v2_img4 },
-  { name: "Hóng Yùn", price: 3200000, image: v2_img5 },
-]);
+// const volumeTwoProducts = ref([
+//   { name: "Mǎn Táng Hóng", price: 3450000, image: v2_img1 },
+//   { name: "Yù Pái", price: 2850000, image: v2_img2 },
+//   { name: "Jīn Zūn", price: 3100000, image: v2_img3 },
+//   { name: "Jiāng Yè", price: 2750000, image: v2_img4 },
+//   { name: "Hóng Yùn", price: 3200000, image: v2_img5 },
+// ]);
 
 const formatPrice = (value) =>
   new Intl.NumberFormat("id-ID", {

@@ -1,8 +1,4 @@
 <template>
-  <!-- <aside
-    :class="[isCollapsed ? 'w-20' : 'w-64']"
-    class="relative flex flex-col bg-white shadow-lg border-gray-200 border-r min-h-screen transition-all duration-300 ease-in-out"
-  > -->
   <aside
     :class="[isCollapsed ? 'w-20' : 'w-64']"
     class="top-0 z-40 relative sticky flex flex-col bg-white shadow-lg border-gray-200 border-r h-screen transition-all duration-300 ease-in-out"

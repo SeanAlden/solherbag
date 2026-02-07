@@ -17,7 +17,7 @@
               "
               class="shadow-sm border-4 border-gray-50 rounded-full w-32 h-32 object-cover"
             /> -->
-            <img
+            <!-- <img
               :src="
                 userData.profile_image
                   ? userData.profile_image
@@ -25,6 +25,13 @@
               "
               class="shadow-sm border-4 border-gray-50 rounded-full w-32 h-32 object-cover"
               alt="Profile Avatar"
+            /> -->
+            <img
+              :key="userData.profile_image"
+              :src="userData.profile_image"
+              class="shadow-sm border-4 border-gray-50 rounded-full w-32 h-32 object-cover"
+              alt="Profile Avatar"
+              @error="handleImageError"
             />
             <label
               class="absolute inset-0 flex justify-center items-center bg-black/40 opacity-0 group-hover:opacity-100 rounded-full transition-opacity cursor-pointer"
@@ -256,20 +263,20 @@
           </button>
 
           <p class="mb-1 font-bold">
-            {{ addr.first_name_address }} {{ addr.last_name_address }}
+            {{ addr.receiver.first_name }} {{ addr.receiver.last_name }}
           </p>
 
-          <p class="text-gray-600 text-sm">{{ addr.address_location }}</p>
+          <p class="text-gray-600 text-sm">{{ addr.details.location }}</p>
 
-          <p class="text-gray-600 text-sm">{{ addr.location_type || "-" }}</p>
+          <p class="text-gray-600 text-sm">{{ addr.details.type || "-" }}</p>
 
-          <p class="text-gray-600 text-sm">{{ addr.city }}</p>
+          <p class="text-gray-600 text-sm">{{ addr.details.city }}</p>
 
           <p class="text-gray-600 text-sm">
-            {{ addr.province }} {{ addr.postal_code }}
+            {{ addr.details.province }} {{ addr.details.postal_code }}
           </p>
 
-          <p class="text-gray-600 text-sm">{{ addr.region }}</p>
+          <p class="text-gray-600 text-sm">{{ addr.details.region }}</p>
         </div>
       </div>
     </div>
@@ -437,10 +444,60 @@ const openInfoModal = () => {
   showInfoModal.value = true;
 };
 
+// const handleImageUpdate = async (e) => {
+//   const file = e.target.files[0];
+//   if (!file) return;
+
+//   const formData = new FormData();
+//   formData.append("image", file);
+
+//   try {
+//     const res = await axios.post(`${BASE_URL}/user/update-image`, formData, {
+//       headers: {
+//         Authorization: `Bearer ${localStorage.getItem("token")}`,
+//         "Content-Type": "multipart/form-data",
+//       },
+//     });
+
+//     if (res.data.user) {
+//       const newUser = res.data.user;
+//       if (newUser.profile_image) {
+//         const separator = newUser.profile_image.includes("?") ? "&" : "?";
+//         newUser.profile_image = `${newUser.profile_image}${separator}t=${new Date().getTime()}`;
+//       }
+
+//       updateUserData(newUser);
+
+//       setTimeout(() => {
+//         Swal.fire("Success", "Foto profil diperbarui!", "success");
+//       }, 100);
+//     }
+//   } catch (err) {
+//     if (err.response?.status === 403) {
+//       Swal.fire(
+//         "Error",
+//         "Izin akses ditolak oleh server. Coba refresh halaman.",
+//         "error",
+//       );
+//     }
+//   }
+// };
+
 const handleImageUpdate = async (e) => {
   const file = e.target.files[0];
   if (!file) return;
 
+  // 1. OPTIMISTIC UPDATE (Tampilkan gambar lokal secara instan)
+  // Membuat URL sementara dari file yang dipilih
+  const objectUrl = URL.createObjectURL(file);
+  
+  // Simpan URL gambar lama untuk rollback jika upload gagal
+  const oldImage = userData.value.profile_image;
+  
+  // Update state gambar secara lokal
+  userData.value.profile_image = objectUrl;
+
+  // 2. PROSES UPLOAD KE SERVER (Background Process)
   const formData = new FormData();
   formData.append("image", file);
 
@@ -453,21 +510,46 @@ const handleImageUpdate = async (e) => {
     });
 
     if (res.data.user) {
-      updateUserData(res.data.user);
+      // 3. SYNC DENGAN DATA SERVER (Setelah sukses)
+      const newUser = res.data.user;
+      
+      // Tambahkan timestamp agar browser tidak mengambil cache lama
+      if (newUser.profile_image) {
+        const separator = newUser.profile_image.includes("?") ? "&" : "?";
+        newUser.profile_image = `${newUser.profile_image}${separator}t=${new Date().getTime()}`;
+      }
 
-      setTimeout(() => {
-        Swal.fire("Success", "Foto profil diperbarui!", "success");
-      }, 100);
+      updateUserData(newUser);
+      
+      // Hapus URL object sementara dari memori browser
+      URL.revokeObjectURL(objectUrl);
+
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: 'Foto profil diperbarui!',
+        showConfirmButton: false,
+        timer: 3000
+      });
     }
   } catch (err) {
-    if (err.response?.status === 403) {
-      Swal.fire(
-        "Error",
-        "Izin akses ditolak oleh server. Coba refresh halaman.",
-        "error",
-      );
-    }
+    // 4. ROLLBACK (Jika gagal)
+    console.error("Upload failed", err);
+    userData.value.profile_image = oldImage; // Kembalikan ke gambar lama
+    URL.revokeObjectURL(objectUrl); // Bersihkan memori
+
+    Swal.fire(
+      "Gagal",
+      "Tidak dapat mengunggah foto. Silakan coba lagi.",
+      "error"
+    );
   }
+};
+
+const handleImageError = (e) => {
+  // Jika gambar gagal load, ganti ke UI Avatars
+  e.target.src = `https://ui-avatars.com/api/?name=${userData.value.first_name}+${userData.value.last_name}&background=random`;
 };
 
 const submitInfoUpdate = async () => {
@@ -525,6 +607,22 @@ const editForm = ref({
   image: null,
 });
 
+const fetchUserProfile = async () => {
+  try {
+    const res = await axios.get(`${BASE_URL}/user`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    });
+    
+    updateUserData(res.data);
+  } catch (err) {
+    console.error("Failed to sync user profile", err);
+
+    if (err.response && err.response.status === 401) {
+      handleLogout();
+    }
+  }
+};
+
 onMounted(() => {
   const user = localStorage.getItem("user");
 
@@ -539,12 +637,14 @@ onMounted(() => {
   fetchAddresses();
 
   fetchProvinces();
+
+  fetchUserProfile();
 });
 
 const form = ref({
   id: null,
   region: "Indonesia",
-  first_name_address: "",
+  ffirst_name_address: "",
   last_name_address: "",
   address_location: "",
   location_type: "",
@@ -559,7 +659,7 @@ const fetchAddresses = async () => {
     headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
   });
 
-  addresses.value = res.data;
+  addresses.value = res.data.data;
 };
 
 const fetchProvinces = () => {
@@ -578,11 +678,33 @@ const openModal = (data = null) => {
   isEdit.value = !!data;
 
   if (data) {
-    form.value = { ...data };
+    form.value = {
+      id: data.id,
+      region: data.details.region,
+      first_name_address: data.receiver.first_name,
+      last_name_address: data.receiver.last_name,
+      address_location: data.details.location,
+      location_type: data.details.type === "other" ? "" : data.details.type,
+      city: data.details.city,
+      province: data.details.province,
+      postal_code: data.details.postal_code,
+      is_default: data.is_default,
+    };
 
     fetchProvinces();
   } else {
-    form.value = { region: "Indonesia", is_default: false };
+    // Reset form untuk Add Baru
+    form.value = {
+      region: "Indonesia",
+      is_default: false,
+      first_name_address: "",
+      last_name_address: "",
+      address_location: "",
+      location_type: "",
+      city: "",
+      province: "",
+      postal_code: "",
+    };
   }
 
   showModal.value = true;

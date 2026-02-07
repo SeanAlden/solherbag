@@ -1,5 +1,5 @@
 <template>
-  <header
+  <!-- <header
     class="top-0 left-0 z-50 fixed bg-white px-6 py-4 border-gray-200 border-b w-full"
   >
     <div class="flex justify-between items-center mx-auto max-w-7xl">
@@ -49,120 +49,6 @@
             />
           </svg>
         </button>
-
-        <!-- <div
-          v-if="isSearchOpen"
-          class="top-[73px] right-0 left-0 z-[110] fixed flex flex-col bg-white shadow-2xl border-gray-100 border-b max-h-[80vh] animate-slide-down"
-        >
-          <div class="bg-gray-200 px-6 py-6 border-gray-50 border-b">
-            <div class="flex items-center mx-auto max-w-5xl">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="mr-4 w-5 h-5 text-gray-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
-              <input
-                v-model="searchInput"
-                type="text"
-                placeholder="Search our collection..."
-                class="flex-grow border-none outline-none focus:ring-0 font-serif text-base placeholder-gray-300"
-                ref="searchInputRef"
-              />
-              <button
-                @click="isSearchOpen = false"
-                class="ml-4 text-gray-300 hover:text-black transition-all"
-              >
-                <span class="font-bold text-xs uppercase tracking-widest"
-                  >Close</span
-                >
-              </button>
-            </div>
-          </div>
-
-          <div class="flex-grow bg-gray-300 px-6 py-10 overflow-y-auto custom-scrollbar">
-            <div class="mx-auto max-w-5xl">
-              <div v-if="recentlyViewed.length > 0" class="mb-12">
-                <div class="flex justify-between items-end mb-4 px-1">
-                  <h3
-                    class="font-bold text-[10px] text-gray-400 uppercase tracking-[0.2em]"
-                  >
-                    Recently Viewed
-                  </h3>
-                  <button
-                    @click="clearRecentlyViewed"
-                    class="font-bold text-[9px] text-gray-400 hover:text-red-500 uppercase tracking-widest transition-colors"
-                  >
-                    Clear
-                  </button>
-                </div>
-                <div class="gap-4 grid grid-cols-3 md:grid-cols-6">
-                  <div
-                    v-for="item in recentlyViewed"
-                    :key="item.id"
-                    class="group cursor-pointer"
-                    @click="navigateToProduct(item.id)"
-                  >
-                    <div
-                      class="relative bg-gray-50 shadow-sm mb-2 rounded-xl aspect-square overflow-hidden"
-                    >
-                      <img
-                        :src="item.image"
-                        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                      />
-                    </div>
-                    <h4
-                      class="font-bold text-[9px] text-gray-900 truncate uppercase tracking-wider"
-                    >
-                      {{ item.name }}
-                    </h4>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <h3
-                  class="mb-4 px-1 font-bold text-[10px] text-gray-400 uppercase tracking-[0.2em]"
-                >
-                  Recommended
-                </h3>
-                <div class="gap-4 grid grid-cols-3 md:grid-cols-6">
-                  <div
-                    v-for="product in randomProducts"
-                    :key="product.id"
-                    class="group cursor-pointer"
-                    @click="navigateToProduct(product.id)"
-                  >
-                    <div
-                      class="relative bg-gray-50 shadow-sm mb-2 rounded-xl aspect-square overflow-hidden"
-                    >
-                      <img
-                        :src="product.image"
-                        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                      />
-                    </div>
-                    <h4
-                      class="font-bold text-[9px] text-gray-900 truncate uppercase tracking-wider"
-                    >
-                      {{ product.name }}
-                    </h4>
-                    <p class="mt-0.5 text-[9px] text-gray-400">
-                      {{ formatPrice(product.discount_price ?? product.price) }}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div> -->
 
         <div
           v-if="isSearchOpen"
@@ -569,6 +455,317 @@
         </div>
       </div>
     </div>
+  </header> -->
+  <header
+    class="top-0 left-0 z-50 fixed bg-white px-6 py-4 border-gray-200 border-b w-full"
+  >
+    <div class="flex justify-between items-center mx-auto max-w-7xl">
+      <div class="flex items-center">
+        <nav
+          class="hidden md:flex space-x-6 font-medium text-xs uppercase tracking-widest"
+        >
+          <router-link
+            to="/"
+            class="hover:text-gray-500 transition cursor-pointer"
+            >Home</router-link
+          >
+          <router-link
+            to="/catalog"
+            class="hover:text-gray-500 transition cursor-pointer"
+            >Catalog</router-link
+          >
+          <router-link
+            to="/contact"
+            class="hover:text-gray-500 transition cursor-pointer"
+            >Contact</router-link
+          >
+        </nav>
+
+        <button
+          @click="isMobileMenuOpen = true"
+          class="md:hidden flex justify-center items-center focus:outline-none text-gray-700 hover:text-black"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-6 h-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.5"
+              d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+            />
+          </svg>
+        </button>
+      </div>
+
+      <div class="flex-shrink-0">
+        <img
+          src="../../../assets/solherbrandbook.png"
+          alt="Solher Logo"
+          class="w-auto h-8 md:h-12 object-contain"
+        />
+      </div>
+
+      <div class="flex items-center space-x-4 md:space-x-5 text-gray-700">
+        <button
+          @click="openSearch"
+          class="flex justify-center items-center focus:outline-none hover:text-black transition-colors"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="w-6 h-6"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
+            />
+          </svg>
+        </button>
+        <div class="relative flex justify-center items-center">
+          <button @click="toggleDropdown">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-6 h-6"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
+              />
+            </svg>
+          </button>
+          <div
+            v-if="isDropdownOpen"
+            class="top-full right-0 z-[60] absolute bg-white shadow-xl mt-4 p-6 border border-gray-100 w-64 animate-fade-in"
+          >
+            <div v-if="isAuthenticated" class="text-left">
+              <h3
+                class="font-bold text-black text-sm truncate uppercase tracking-tight"
+              >
+                HI {{ userData?.first_name }} {{ userData?.last_name }}
+              </h3>
+              <p class="mb-4 text-gray-500 text-xs truncate">
+                {{ userData?.email }}
+              </p>
+            </div>
+            <div v-else>
+              <h3
+                class="mb-4 font-bold text-black text-xs text-left uppercase tracking-widest"
+              >
+                Account
+              </h3>
+              <router-link
+                to="/login"
+                @click="isDropdownOpen = false"
+                class="block bg-black hover:bg-gray-800 mb-4 py-3 w-full font-bold text-white text-xs text-center uppercase tracking-widest transition"
+                >Sign In</router-link
+              >
+            </div>
+            <div class="gap-2 grid grid-cols-2">
+              <router-link
+                to="/orderpage"
+                @click="isDropdownOpen = false"
+                class="flex justify-center items-center space-x-2 bg-gray-100 hover:bg-gray-200 py-3 transition"
+                ><span class="font-bold text-[10px] uppercase tracking-wider"
+                  >Orders</span
+                ></router-link
+              >
+              <router-link
+                to="/profilepage"
+                @click="isDropdownOpen = false"
+                class="flex justify-center items-center space-x-2 bg-gray-100 hover:bg-gray-200 py-3 transition"
+                ><span class="font-bold text-[10px] uppercase tracking-wider"
+                  >Profile</span
+                ></router-link
+              >
+            </div>
+          </div>
+        </div>
+
+        <button
+          @click="openCart"
+          class="relative hover:text-black transition-colors cart-icon-header"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="w-6 h-6"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"
+            />
+          </svg>
+          <span
+            v-if="cartCount > 0"
+            :class="[
+              isBadgePopping ? 'scale-150 bg-red-600' : 'scale-100 bg-black',
+            ]"
+            class="-top-2 -right-2 absolute flex justify-center items-center rounded-full w-4 h-4 text-[10px] text-white transition-all duration-300 pointer-events-none"
+            >{{ cartCount }}</span
+          >
+        </button>
+      </div>
+    </div>
+
+    <transition name="slide-fade">
+      <div v-if="isMobileMenuOpen" class="z-[200] fixed inset-0 flex">
+        <div
+          @click="isMobileMenuOpen = false"
+          class="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
+        ></div>
+
+        <div
+          class="relative flex flex-col bg-white shadow-2xl p-8 w-[80%] max-w-sm h-full overflow-y-auto"
+        >
+          <div
+            class="flex justify-between items-center mb-10 pb-6 border-gray-100 border-b"
+          >
+            <img
+              src="../../../assets/solherbrandbook.png"
+              alt="Logo"
+              class="w-auto h-6 object-contain"
+            />
+            <button
+              @click="isMobileMenuOpen = false"
+              class="p-2 text-gray-500 hover:text-black"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="w-6 h-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+
+          <nav class="flex flex-col space-y-6 font-serif text-2xl">
+            <router-link
+              to="/"
+              class="pb-4 border-gray-50 border-b hover:text-gray-500 transition-colors"
+              @click="isMobileMenuOpen = false"
+              >Home</router-link
+            >
+            <router-link
+              to="/catalog"
+              class="pb-4 border-gray-50 border-b hover:text-gray-500 transition-colors"
+              @click="isMobileMenuOpen = false"
+              >Catalog</router-link
+            >
+            <router-link
+              to="/contact"
+              class="pb-4 border-gray-50 border-b hover:text-gray-500 transition-colors"
+              @click="isMobileMenuOpen = false"
+              >Contact</router-link
+            >
+          </nav>
+
+          <div
+            class="mt-auto pt-10 text-gray-400 text-xs uppercase tracking-widest"
+          >
+            <p>© 2026 Solher Bag</p>
+          </div>
+        </div>
+      </div>
+    </transition>
+
+    <div
+      v-if="isSearchOpen"
+      class="z-[110] fixed inset-0 flex justify-center items-start px-6 pt-[73px]"
+      @click="isSearchOpen = false"
+    >
+      <div class="absolute inset-0 bg-black/10 backdrop-blur-[2px]"></div>
+      <div
+        @click.stop
+        class="relative flex flex-col bg-white shadow-2xl border border-gray-100 rounded-b-[2rem] w-full max-w-2xl max-h-[75vh] overflow-hidden animate-slide-down"
+      >
+        <div class="bg-gray-50 px-8 py-6 border-gray-100 border-b">
+          <div class="flex items-center">
+            <input
+              v-model="searchInput"
+              type="text"
+              placeholder="Search products..."
+              class="flex-grow bg-transparent border-none outline-none focus:ring-0 font-serif text-base placeholder-gray-300"
+              ref="searchInputRef"
+            />
+            <button
+              @click="isSearchOpen = false"
+              class="ml-4 text-gray-400 hover:text-black transition-all"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+        <div class="flex-grow px-8 py-8 overflow-y-auto custom-scrollbar">
+          <div v-if="recentlyViewed.length > 0" class="mb-10"></div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      v-if="isCartOpen"
+      class="z-[100] fixed inset-0 flex justify-center items-center p-4"
+    >
+      <div
+        @click="isCartOpen = false"
+        class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+      ></div>
+      <div
+        class="relative flex flex-col bg-white shadow-2xl rounded-3xl w-full max-w-xl max-h-[85vh] overflow-hidden animate-modal-in"
+      >
+        <div class="flex justify-between items-center p-8 border-b">
+          <h2 class="font-serif text-3xl">
+            Your Bag
+            <span class="ml-2 font-sans text-gray-400 text-lg"
+              >({{ cartItems.length }} items)</span
+            >
+          </h2>
+          <button
+            @click="isCartOpen = false"
+            class="focus:outline-none text-3xl hover:rotate-90 transition-transform duration-300"
+          >
+            &times;
+          </button>
+        </div>
+        <div class="flex-grow space-y-6 p-8 overflow-y-auto custom-scrollbar">
+          <div
+            v-for="item in cartItems"
+            :key="item.id"
+            class="flex sm:flex-row flex-col gap-6 pb-6 last:border-0 border-b"
+          >
+            <img
+              :src="item.product.image"
+              class="bg-gray-100 shadow-sm rounded-2xl w-full sm:w-32 h-32 object-cover"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
   </header>
 </template>
 
@@ -596,6 +793,7 @@ const searchInputRef = ref(null);
 const recentlyViewed = ref([]);
 const randomProducts = ref([]);
 const allProducts = ref([]); // Untuk penampung semua produk dari API
+const isMobileMenuOpen = ref(false);
 
 // 1. Logic Recently Viewed
 const loadRecentlyViewed = () => {
@@ -879,10 +1077,20 @@ watch(
   },
 );
 
+// watch(
+//   () => route.path,
+//   () => {
+//     isDropdownOpen.value = false;
+//     checkAuth();
+//     if (isAuthenticated.value) fetchCarts();
+//   },
+// );
+
 watch(
   () => route.path,
   () => {
     isDropdownOpen.value = false;
+    isMobileMenuOpen.value = false; // Tambahan: Tutup menu mobile saat pindah halaman
     checkAuth();
     if (isAuthenticated.value) fetchCarts();
   },
@@ -980,5 +1188,17 @@ watch(
 /* Mempercantik custom scrollbar agar lebih tipis */
 .custom-scrollbar::-webkit-scrollbar {
   width: 3px;
+}
+
+/* Animasi Slide Fade untuk Mobile Menu */
+.slide-fade-enter-active,
+.slide-fade-leave-active {
+  transition: all 0.3s ease;
+}
+
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  opacity: 0;
+  transform: translateX(-20px);
 }
 </style>

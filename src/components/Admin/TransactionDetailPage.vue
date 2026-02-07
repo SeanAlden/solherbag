@@ -85,22 +85,52 @@ const axiosConfig = {
   headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
 };
 
+// const fetchData = async () => {
+//   // 1. Cek state dari navigasi (Instan!)
+//   const stateData = window.history.state?.transactionData;
+//   if (stateData) {
+//     transaction.value = stateData;
+//     isLoading.value = false;
+//   }
+
+//   // 2. Tetap fetch API di background atau jika refresh (Data Integrity)
+//   try {
+//     const res = await axios.get(`${BASE_URL}/admin/transactions/${route.params.id}`, axiosConfig);
+//     transaction.value = res.data;
+//   } catch (error) {
+//     console.error("Detail fetch error:", error);
+//   } finally {
+//     isLoading.value = false;
+//   }
+// };
+
 const fetchData = async () => {
-  // 1. Cek state dari navigasi (Instan!)
+  // 1. Ambil data dari state navigasi
   const stateData = window.history.state?.transactionData;
+  
   if (stateData) {
     transaction.value = stateData;
     isLoading.value = false;
-  }
-
-  // 2. Tetap fetch API di background atau jika refresh (Data Integrity)
-  try {
-    const res = await axios.get(`${BASE_URL}/admin/transactions/${route.params.id}`, axiosConfig);
-    transaction.value = res.data;
-  } catch (error) {
-    console.error("Detail fetch error:", error);
-  } finally {
-    isLoading.value = false;
+    
+    // Skenario Senior: Tetap fetch di background untuk memastikan data terbaru 
+    // tanpa menampilkan loading spinner (Silent Refresh)
+    try {
+      const res = await axios.get(`${BASE_URL}/admin/transactions/${route.params.id}`, axiosConfig);
+      transaction.value = res.data;
+    } catch (error) {
+      console.error("Background sync failed", error);
+    }
+  } else {
+    // 2. Jika tidak ada state (user akses langsung via URL/Refresh), baru tampilkan loading
+    isLoading.value = true;
+    try {
+      const res = await axios.get(`${BASE_URL}/admin/transactions/${route.params.id}`, axiosConfig);
+      transaction.value = res.data;
+    } catch (error) {
+      console.error("Detail fetch error:", error);
+    } finally {
+      isLoading.value = false;
+    }
   }
 };
 

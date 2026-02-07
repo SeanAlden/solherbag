@@ -30,24 +30,6 @@
       </div>
 
       <div class="flex items-center space-x-5 text-gray-700">
-        <!-- <button
-          class="flex justify-center items-center focus:outline-none hover:text-black transition-colors"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="w-6 h-6"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
-            />
-          </svg>
-        </button> -->
         <button
           @click="openSearch"
           class="flex justify-center items-center focus:outline-none hover:text-black transition-colors"
@@ -69,129 +51,6 @@
         </button>
 
         <!-- <div
-          v-if="isSearchOpen"
-          class="z-[110] fixed inset-0 flex flex-col bg-white animate-fade-in"
-        >
-          <div class="px-6 py-6 border-gray-100 border-b">
-            <div class="flex items-center mx-auto max-w-7xl">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="mr-4 w-5 h-5 text-gray-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
-              <input
-                v-model="searchInput"
-                type="text"
-                placeholder="Search for products, categories..."
-                class="flex-grow border-none outline-none focus:ring-0 text-lg placeholder-gray-300"
-                ref="searchInputRef"
-              />
-              <button
-                @click="isSearchOpen = false"
-                class="ml-4 text-gray-400 hover:text-black transition-colors"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="w-6 h-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-            </div>
-          </div>
-
-          <div class="flex-grow px-6 py-12 overflow-y-auto custom-scrollbar">
-            <div class="mx-auto max-w-7xl">
-              <div v-if="recentlyViewed.length > 0" class="mb-16">
-                <div class="flex justify-between items-end mb-6">
-                  <h3
-                    class="font-bold text-gray-400 text-xs uppercase tracking-[0.2em]"
-                  >
-                    Recently Viewed
-                  </h3>
-                  <button
-                    @click="clearRecentlyViewed"
-                    class="font-bold text-[10px] text-gray-400 hover:text-black uppercase tracking-widest transition-colors"
-                  >
-                    Clear
-                  </button>
-                </div>
-                <div
-                  class="gap-4 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6"
-                >
-                  <div
-                    v-for="item in recentlyViewed"
-                    :key="item.id"
-                    class="group cursor-pointer"
-                    @click="navigateToProduct(item.id)"
-                  >
-                    <img
-                      :src="item.image"
-                      class="bg-gray-100 group-hover:opacity-80 shadow-sm mb-3 w-full object-cover aspect-square transition-opacity"
-                    />
-                    <h4
-                      class="font-bold text-[10px] text-gray-900 truncate uppercase tracking-widest"
-                    >
-                      {{ item.name }}
-                    </h4>
-                    <p class="text-[10px] text-gray-400">
-                      {{ formatPrice(item.discount_price ?? item.price) }}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <h3
-                  class="mb-6 font-bold text-gray-400 text-xs uppercase tracking-[0.2em]"
-                >
-                  Products
-                </h3>
-                <div
-                  class="gap-4 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6"
-                >
-                  <div
-                    v-for="product in randomProducts"
-                    :key="product.id"
-                    class="group cursor-pointer"
-                    @click="navigateToProduct(product.id)"
-                  >
-                    <img
-                      :src="product.image"
-                      class="bg-gray-100 group-hover:opacity-80 shadow-sm mb-3 w-full object-cover aspect-square transition-opacity"
-                    />
-                    <h4
-                      class="font-bold text-[10px] text-gray-900 truncate uppercase tracking-widest"
-                    >
-                      {{ product.name }}
-                    </h4>
-                    <p class="text-[10px] text-gray-400">
-                      {{ formatPrice(product.discount_price ?? product.price) }}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div> -->
-        <div
           v-if="isSearchOpen"
           class="top-[73px] right-0 left-0 z-[110] fixed flex flex-col bg-white shadow-2xl border-gray-100 border-b max-h-[80vh] animate-slide-down"
         >
@@ -296,6 +155,137 @@
                       {{ product.name }}
                     </h4>
                     <p class="mt-0.5 text-[9px] text-gray-400">
+                      {{ formatPrice(product.discount_price ?? product.price) }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div> -->
+
+        <div
+          v-if="isSearchOpen"
+          class="z-[110] fixed inset-0 flex justify-center items-start px-6 pt-[73px]"
+          @click="isSearchOpen = false"
+        >
+          <div class="absolute inset-0 bg-black/10 backdrop-blur-[2px]"></div>
+
+          <div
+            @click.stop
+            class="relative flex flex-col bg-white shadow-2xl border border-gray-100 rounded-b-[2rem] w-full max-w-2xl max-h-[75vh] overflow-hidden animate-slide-down"
+          >
+            <div class="bg-gray-50 px-8 py-6 border-gray-100 border-b">
+              <div class="flex items-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="mr-4 w-5 h-5 text-gray-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
+                <input
+                  v-model="searchInput"
+                  type="text"
+                  placeholder="Search products..."
+                  class="flex-grow bg-transparent border-none outline-none focus:ring-0 font-serif text-base placeholder-gray-300"
+                  ref="searchInputRef"
+                />
+                <button
+                  @click="isSearchOpen = false"
+                  class="ml-4 text-gray-400 hover:text-black transition-all"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="w-5 h-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="flex-grow px-8 py-8 overflow-y-auto custom-scrollbar">
+              <div v-if="recentlyViewed.length > 0" class="mb-10">
+                <div class="flex justify-between items-end mb-4">
+                  <h3
+                    class="font-bold text-[9px] text-gray-400 uppercase tracking-[0.25em]"
+                  >
+                    Recently Viewed
+                  </h3>
+                  <button
+                    @click="clearRecentlyViewed"
+                    class="font-bold text-[9px] text-gray-300 hover:text-red-500 uppercase tracking-widest transition-colors"
+                  >
+                    Clear
+                  </button>
+                </div>
+                <div class="gap-4 grid grid-cols-3 md:grid-cols-4">
+                  <div
+                    v-for="item in recentlyViewed"
+                    :key="item.id"
+                    class="group cursor-pointer"
+                    @click="navigateToProduct(item.id)"
+                  >
+                    <div
+                      class="relative bg-gray-50 shadow-sm mb-2 rounded-xl aspect-square overflow-hidden"
+                    >
+                      <img
+                        :src="item.image"
+                        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                    </div>
+                    <h4
+                      class="font-bold text-[9px] text-gray-900 truncate uppercase"
+                    >
+                      {{ item.name }}
+                    </h4>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h3
+                  class="mb-4 font-bold text-[9px] text-gray-400 uppercase tracking-[0.25em]"
+                >
+                  You May Also Like
+                </h3>
+                <div class="gap-4 grid grid-cols-3 md:grid-cols-4">
+                  <div
+                    v-for="product in randomProducts"
+                    :key="product.id"
+                    class="group cursor-pointer"
+                    @click="navigateToProduct(product.id)"
+                  >
+                    <div
+                      class="relative bg-gray-50 shadow-sm mb-2 rounded-xl aspect-square overflow-hidden"
+                    >
+                      <img
+                        :src="product.image"
+                        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                    </div>
+                    <h4
+                      class="font-bold text-[9px] text-gray-900 truncate uppercase"
+                    >
+                      {{ product.name }}
+                    </h4>
+                    <p class="mt-0.5 text-[8px] text-gray-400">
                       {{ formatPrice(product.discount_price ?? product.price) }}
                     </p>
                   </div>
@@ -635,12 +625,27 @@ const getRandomProducts = () => {
   randomProducts.value = shuffled.slice(0, 6);
 };
 
+// const openSearch = () => {
+//   loadRecentlyViewed();
+//   getRandomProducts();
+//   isSearchOpen.value = true;
+//   // Focus input otomatis
+//   setTimeout(() => searchInputRef.value?.focus(), 100);
+// };
+
 const openSearch = () => {
+  // Logic Toggle: Jika sedang buka, maka tutup
+  if (isSearchOpen.value) {
+    isSearchOpen.value = false;
+    return;
+  }
+
   loadRecentlyViewed();
   getRandomProducts();
   isSearchOpen.value = true;
+
   // Focus input otomatis
-  setTimeout(() => searchInputRef.value?.focus(), 100);
+  setTimeout(() => searchInputRef.value?.focus(), 150);
 };
 
 const navigateToProduct = (id) => {
@@ -955,5 +960,25 @@ watch(
 .overflow-y-auto {
   scrollbar-width: thin;
   scrollbar-color: #e5e7eb transparent;
+}
+
+.animate-slide-down {
+  animation: slideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Mempercantik custom scrollbar agar lebih tipis */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 3px;
 }
 </style>

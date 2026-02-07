@@ -111,7 +111,7 @@
                 {{ trx.status }}
               </span>
             </td>
-            <td class="py-6 text-center">
+            <td class="py-6 text-center" @click.stop>
               <select
                 @change="updateStatus(trx.id, $event.target.value)"
                 :value="trx.status"
@@ -153,7 +153,7 @@ const goToDetail = (trx) => {
   router.push({
     name: 'TransactionDetail', // Pastikan nama route ini sesuai di index.js
     params: { id: trx.id },
-    state: { transactionData: trx } 
+    state: { transactionData: JSON.parse(JSON.stringify(trx)) } 
   });
 };
 

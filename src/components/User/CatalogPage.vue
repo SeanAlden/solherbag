@@ -415,8 +415,10 @@ import { BASE_URL } from "../../config/api.js";
 
 const { state, fetchCatalogData } = useProductStore();
 
-const products = ref([]);
-const categories = ref([]);
+// const products = ref([]);
+// const categories = ref([]);
+
+const categories = computed(() => state.categories);
 const isLoading = ref(false); // State baru untuk loading
 
 const searchQuery = ref("");
@@ -469,17 +471,43 @@ const fetchInitialData = async () => {
 //   });
 // });
 
+// const filteredProducts = computed(() => {
+//   return state.catalogProducts.filter((p) => {
+//     const matchesSearch = p.name
+//       .toLowerCase()
+//       .includes(searchQuery.value.toLowerCase());
+//     const matchesCategory =
+//       selectedCategory.value === "" ||
+//       p.category?.name === selectedCategory.value;
+//     const matchesSale = showOnlySale.value
+//       ? p.discount_price !== null && p.discount_price > 0
+//       : true;
+//     return matchesSearch && matchesCategory && matchesSale;
+//   });
+// });
+
+// Logika Filtering (Menggunakan state.catalogProducts)
 const filteredProducts = computed(() => {
-  return state.catalogProducts.filter((p) => {
+  // Pastikan state.catalogProducts ada isinya sebelum filter
+  const sourceProducts = state.catalogProducts || [];
+
+  return sourceProducts.filter((p) => {
     const matchesSearch = p.name
       .toLowerCase()
       .includes(searchQuery.value.toLowerCase());
+
+    // Perhatikan: Pastikan API mengembalikan 'category_name' atau 'category.name'
+    // Sesuaikan logic ini dengan struktur JSON Anda
+    const productCategory = p.category?.name || p.category_name;
+
     const matchesCategory =
       selectedCategory.value === "" ||
-      p.category?.name === selectedCategory.value;
+      productCategory === selectedCategory.value;
+
     const matchesSale = showOnlySale.value
       ? p.discount_price !== null && p.discount_price > 0
       : true;
+
     return matchesSearch && matchesCategory && matchesSale;
   });
 });

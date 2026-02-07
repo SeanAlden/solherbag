@@ -150,6 +150,10 @@ const routes = [
 const router = createRouter({
     history: createWebHistory(),
     routes,
+    scrollBehavior(to, from, savedPosition) {
+        // Selalu scroll ke atas (0, 0)
+        return { top: 0, behavior: 'smooth' }
+    },
 })
 
 // Navigation Guard

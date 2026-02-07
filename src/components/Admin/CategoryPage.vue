@@ -156,9 +156,9 @@ onMounted(fetchCategories);
         </thead>
         <tbody class="text-gray-600">
           <tr v-for="cat in categories" :key="cat.id" class="hover:bg-gray-50 border-gray-50 border-b transition">
-            <td class="py-4 font-mono text-blue-600 text-sm">{{ cat.code }}</td>
-            <td class="py-4 font-medium text-gray-800">{{ cat.name }}</td>
-            <td class="py-4 text-sm">{{ cat.description || '-' }}</td>
+            <td class="py-4 font-mono text-blue-600 text-sm">{{ cat.category_code }}</td>
+            <td class="py-4 font-medium text-gray-800">{{ cat.category_name }}</td>
+            <td class="py-4 text-sm">{{ cat.meta.description || '-' }}</td>
             <td class="py-4">
               <div class="flex justify-center gap-3">
                 <button @click="openModal(cat)" class="hover:bg-amber-50 p-2 rounded-lg text-amber-500 transition">Edit</button>
@@ -179,15 +179,15 @@ onMounted(fetchCategories);
         <form @submit.prevent="handleSubmit" class="space-y-4">
           <div>
             <label class="block mb-1 font-bold text-sm">Category Code</label>
-            <input v-model="form.code" type="text" class="bg-gray-100 p-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 w-full" placeholder="e.g. LTHR-BAG" required>
+            <input v-model="form.category_code" type="text" class="bg-gray-100 p-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 w-full" placeholder="e.g. LTHR-BAG" required>
           </div>
           <div>
             <label class="block mb-1 font-bold text-sm">Category Name</label>
-            <input v-model="form.name" type="text" class="bg-gray-100 p-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 w-full" placeholder="e.g. Leather Bag" required>
+            <input v-model="form.category_name" type="text" class="bg-gray-100 p-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 w-full" placeholder="e.g. Leather Bag" required>
           </div>
           <div>
             <label class="block mb-1 font-bold text-sm">Description</label>
-            <textarea v-model="form.description" class="bg-gray-100 p-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 w-full" rows="3"></textarea>
+            <textarea v-model="form.meta.description" class="bg-gray-100 p-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 w-full" rows="3"></textarea>
           </div>
           <div class="flex gap-3 pt-4">
             <button type="button" @click="showModal = false" class="flex-1 py-3 font-bold text-gray-500">Cancel</button>
@@ -223,7 +223,7 @@ const fetchCategories = async () => {
   isLoading.value = true;
   try {
     const res = await axios.get(`${BASE_URL}/categories`, axiosConfig);
-    categories.value = res.data;
+    categories.value = res.data.data;
   } catch (err) {
     console.error(err);
   } finally {

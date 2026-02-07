@@ -136,8 +136,6 @@ const router = useRouter();
 const footerEmail = ref("");
 
 const handleFooterSignUp = () => {
-  // Karena input memiliki atribut 'required', browser akan otomatis memvalidasi "Please fill out this field"
-  // Jika valid, kita arahkan ke RegisterPage dengan query param
   router.push({
     path: "/register",
     query: { email: footerEmail.value },

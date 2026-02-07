@@ -245,11 +245,11 @@ onMounted(fetchInitialData);
           <button 
             v-for="cat in categories" 
             :key="cat.id"
-            @click="selectCategory(cat.name)"
-            :class="[selectedCategory === cat.name && !showOnlySale ? 'bg-black text-white' : 'bg-white text-gray-600 hover:bg-gray-100']"
+            @click="selectCategory(cat.category_name)"
+            :class="[selectedCategory === cat.category_name && !showOnlySale ? 'bg-black text-white' : 'bg-white text-gray-600 hover:bg-gray-100']"
             class="shadow-sm px-6 py-2 rounded-full font-bold text-xs uppercase tracking-widest whitespace-nowrap transition"
           >
-            {{ cat.name }}
+            {{ cat.category_name }}
           </button>
         </div>
       </div>
@@ -347,7 +347,7 @@ const fetchInitialData = async () => {
       axios.get(`${BASE_URL}/guest/categories`)
     ]);
     products.value = prodRes.data;
-    categories.value = catRes.data;
+    categories.value = catRes.data.data;
   } catch (error) {
     console.error("Error loading data:", error);
   } finally {

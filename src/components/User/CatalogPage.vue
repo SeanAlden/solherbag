@@ -288,7 +288,7 @@ onMounted(fetchInitialData);
       </div>
     </div>
 
-    <div v-if="paginatedProducts.length > 0">
+    <!-- <div v-if="paginatedProducts.length > 0">
       <div
         class="gap-x-4 gap-y-10 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 mx-auto max-w-7xl"
       >
@@ -346,6 +346,115 @@ onMounted(fetchInitialData);
         </div>
       </div>
 
+      <div class="flex justify-center items-center gap-4 mt-20">
+        <button
+          @click="currentPage--"
+          :disabled="currentPage === 1"
+          class="bg-white hover:bg-gray-50 disabled:opacity-30 shadow-sm p-2 rounded-full transition disabled:cursor-not-allowed"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-5 h-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
+        </button>
+        <span class="font-bold text-xs uppercase tracking-widest"
+          >Page {{ currentPage }} of {{ totalPages || 1 }}</span
+        >
+        <button
+          @click="currentPage++"
+          :disabled="currentPage === totalPages || totalPages === 0"
+          class="bg-white hover:bg-gray-50 disabled:opacity-30 shadow-sm p-2 rounded-full transition disabled:cursor-not-allowed"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-5 h-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 5l7 7-7 7"
+            />
+          </svg>
+        </button>
+      </div>
+    </div> -->
+
+    <div v-if="paginatedProducts.length > 0">
+      <div
+        class="gap-x-6 gap-y-12 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mx-auto max-w-7xl"
+      >
+        <div
+          v-for="product in paginatedProducts"
+          :key="product.id"
+          class="group cursor-pointer"
+          @click="$router.push(`/product/${product.id}`)"
+        >
+          <div
+            class="relative bg-white shadow-sm mb-4 rounded-sm aspect-[4/5] overflow-hidden"
+          >
+            <img
+              :src="product.image"
+              class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+              alt="Product Image"
+            />
+
+            <div
+              v-if="product.discount_price"
+              class="top-2 right-2 absolute bg-red-600 px-2 py-1 rounded-sm font-bold text-[8px] text-white uppercase tracking-tighter"
+            >
+              -{{ calculateDiscount(product.price, product.discount_price) }}%
+            </div>
+
+            <div
+              v-if="product.stock <= 3 && product.stock > 0"
+              class="top-2 left-2 absolute bg-amber-500 px-2 py-1 rounded-sm font-bold text-[8px] text-white uppercase"
+            >
+              Low Stock
+            </div>
+          </div>
+
+          <div class="space-y-2 text-center md:text-left">
+            <h3
+              class="font-medium text-xs text-gray-900 md:text-sm truncate uppercase tracking-widest"
+            >
+              {{ product.name }}
+            </h3>
+
+            <div
+              class="flex justify-center md:justify-start items-center gap-2"
+            >
+              <template v-if="product.discount_price">
+                <p class="font-bold text-red-600 text-sm md:text-base">
+                  {{ formatPrice(product.discount_price) }}
+                </p>
+                <p class="text-xs text-gray-400 md:text-sm line-through">
+                  {{ formatPrice(product.price) }}
+                </p>
+              </template>
+              <p
+                v-else
+                class="font-semibold text-gray-600 text-sm md:text-base"
+              >
+                {{ formatPrice(product.price) }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
       <div class="flex justify-center items-center gap-4 mt-20">
         <button
           @click="currentPage--"

@@ -6,26 +6,6 @@
       <div v-if="userData" class="flex md:flex-row flex-col gap-10">
         <div class="flex flex-col items-center gap-4">
           <div class="group relative">
-            <!-- <img
-              :src="
-                userData.profile_image
-                  ? `http://localhost:8000/storage/${userData.profile_image}?t=${new Date().getTime()}`
-                  : 'https://ui-avatars.com/api/?name=' +
-                    userData.first_name +
-                    '+' +
-                    userData.last_name
-              "
-              class="shadow-sm border-4 border-gray-50 rounded-full w-32 h-32 object-cover"
-            /> -->
-            <!-- <img
-              :src="
-                userData.profile_image
-                  ? userData.profile_image
-                  : `https://ui-avatars.com/api/?name=${userData.first_name}+${userData.last_name}&background=random`
-              "
-              class="shadow-sm border-4 border-gray-50 rounded-full w-32 h-32 object-cover"
-              alt="Profile Avatar"
-            /> -->
             <img
               :key="userData.profile_image"
               :src="userData.profile_image"
@@ -444,45 +424,6 @@ const openInfoModal = () => {
   showInfoModal.value = true;
 };
 
-// const handleImageUpdate = async (e) => {
-//   const file = e.target.files[0];
-//   if (!file) return;
-
-//   const formData = new FormData();
-//   formData.append("image", file);
-
-//   try {
-//     const res = await axios.post(`${BASE_URL}/user/update-image`, formData, {
-//       headers: {
-//         Authorization: `Bearer ${localStorage.getItem("token")}`,
-//         "Content-Type": "multipart/form-data",
-//       },
-//     });
-
-//     if (res.data.user) {
-//       const newUser = res.data.user;
-//       if (newUser.profile_image) {
-//         const separator = newUser.profile_image.includes("?") ? "&" : "?";
-//         newUser.profile_image = `${newUser.profile_image}${separator}t=${new Date().getTime()}`;
-//       }
-
-//       updateUserData(newUser);
-
-//       setTimeout(() => {
-//         Swal.fire("Success", "Foto profil diperbarui!", "success");
-//       }, 100);
-//     }
-//   } catch (err) {
-//     if (err.response?.status === 403) {
-//       Swal.fire(
-//         "Error",
-//         "Izin akses ditolak oleh server. Coba refresh halaman.",
-//         "error",
-//       );
-//     }
-//   }
-// };
-
 const handleImageUpdate = async (e) => {
   const file = e.target.files[0];
   if (!file) return;
@@ -490,10 +431,10 @@ const handleImageUpdate = async (e) => {
   // 1. OPTIMISTIC UPDATE (Tampilkan gambar lokal secara instan)
   // Membuat URL sementara dari file yang dipilih
   const objectUrl = URL.createObjectURL(file);
-  
+
   // Simpan URL gambar lama untuk rollback jika upload gagal
   const oldImage = userData.value.profile_image;
-  
+
   // Update state gambar secara lokal
   userData.value.profile_image = objectUrl;
 
@@ -512,7 +453,7 @@ const handleImageUpdate = async (e) => {
     if (res.data.user) {
       // 3. SYNC DENGAN DATA SERVER (Setelah sukses)
       const newUser = res.data.user;
-      
+
       // Tambahkan timestamp agar browser tidak mengambil cache lama
       if (newUser.profile_image) {
         const separator = newUser.profile_image.includes("?") ? "&" : "?";
@@ -520,17 +461,17 @@ const handleImageUpdate = async (e) => {
       }
 
       updateUserData(newUser);
-      
+
       // Hapus URL object sementara dari memori browser
       URL.revokeObjectURL(objectUrl);
 
       Swal.fire({
         toast: true,
-        position: 'top-end',
-        icon: 'success',
-        title: 'Foto profil diperbarui!',
+        position: "top-end",
+        icon: "success",
+        title: "Foto profil diperbarui!",
         showConfirmButton: false,
-        timer: 3000
+        timer: 3000,
       });
     }
   } catch (err) {
@@ -542,7 +483,7 @@ const handleImageUpdate = async (e) => {
     Swal.fire(
       "Gagal",
       "Tidak dapat mengunggah foto. Silakan coba lagi.",
-      "error"
+      "error",
     );
   }
 };
@@ -612,7 +553,7 @@ const fetchUserProfile = async () => {
     const res = await axios.get(`${BASE_URL}/user`, {
       headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
     });
-    
+
     updateUserData(res.data);
   } catch (err) {
     console.error("Failed to sync user profile", err);
@@ -728,18 +669,47 @@ const saveAddress = async () => {
   Swal.fire("Success", "Address updated!", "success");
 };
 
+// const handleLogout = () => {
+//   localStorage.removeItem("token");
+
+//   localStorage.removeItem("user");
+
+//   Swal.fire({
+//     icon: "info",
+//     title: "Logged Out",
+//     text: "Sesi Anda telah berakhir.",
+//     timer: 1500,
+//   });
+
+//   router.push("/login");
+// };
+
 const handleLogout = () => {
-  localStorage.removeItem("token");
-
-  localStorage.removeItem("user");
-
+  // Tampilkan Pop-up Konfirmasi
   Swal.fire({
-    icon: "info",
-    title: "Logged Out",
-    text: "Sesi Anda telah berakhir.",
-    timer: 1500,
-  });
+    title: "Are you sure?",
+    text: "You will be signed out of your account.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#000",
+    cancelButtonColor: "#d33", 
+    confirmButtonText: "Yes, Logout",
+    cancelButtonText: "Cancel",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
 
-  router.push("/login");
+      Swal.fire({
+        icon: "success",
+        title: "Logged Out",
+        text: "See you again soon!",
+        timer: 1500,
+        showConfirmButton: false,
+      }).then(() => {
+        router.push("/login");
+      });
+    }
+  });
 };
 </script>

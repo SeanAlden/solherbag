@@ -301,12 +301,30 @@ onMounted(fetchData);
           />
         </div>
 
+        <div
+          class="flex items-center bg-gray-50 px-3 border border-gray-200 rounded-xl h-[42px]"
+        >
+          <span class="mr-2 text-gray-400 text-xs">Show:</span>
+          <select
+            v-model="itemsPerPage"
+            class="bg-transparent outline-none font-bold text-gray-700 text-sm cursor-pointer"
+          >
+            <option :value="5">5</option>
+            <option :value="10">10</option>
+            <option :value="20">20</option>
+          </select>
+        </div>
+
         <select
           v-model="selectedCategory"
           class="bg-gray-50 px-4 py-2 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-black h-[42px] text-gray-700 text-sm transition"
         >
           <option value="">All Categories</option>
-          <option v-for="cat in categories" :key="cat.id" :value="cat.category_name">
+          <option
+            v-for="cat in categories"
+            :key="cat.id"
+            :value="cat.category_name"
+          >
             {{ cat.category_name }}
           </option>
         </select>
@@ -455,7 +473,7 @@ const searchQuery = ref("");
 const isLoading = ref(false); // State loading
 
 const currentPage = ref(1);
-const itemsPerPage = 5;
+const itemsPerPage = ref(5);
 
 const axiosConfig = {
   headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -474,16 +492,16 @@ const filteredProducts = computed(() => {
 });
 
 const totalPages = computed(() =>
-  Math.ceil(filteredProducts.value.length / itemsPerPage),
+  Math.ceil(filteredProducts.value.length / itemsPerPage.value),
 );
 
 const paginatedProducts = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage;
-  const end = start + itemsPerPage;
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
   return filteredProducts.value.slice(start, end);
 });
 
-watch([selectedCategory, searchQuery], () => {
+watch([selectedCategory, searchQuery, itemsPerPage], () => {
   currentPage.value = 1;
 });
 

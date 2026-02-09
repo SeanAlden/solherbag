@@ -176,11 +176,6 @@ onMounted(fetchProductDetail);
     <div class="flex md:flex-row flex-col gap-12 lg:gap-24">
       <div class="w-full md:w-1/2">
         <div class="bg-gray-100 aspect-[4/5] overflow-hidden">
-          <!-- <img
-            :src="product.image"
-            class="shadow-sm w-full h-full object-cover"
-            alt="Product Image"
-          /> -->
           <img
             :src="product.image"
             class="shadow-sm w-full h-full object-cover main-product-image"
@@ -277,7 +272,7 @@ const route = useRoute();
 const router = useRouter();
 const product = ref(null);
 const activeSection = ref("Description");
-const isLoading = ref(true); // Default true saat masuk halaman
+const isLoading = ref(true);
 
 const fetchProductDetail = async () => {
   isLoading.value = true;
@@ -286,9 +281,8 @@ const fetchProductDetail = async () => {
     product.value = res.data;
 
     // TRIGGER TRACKING VIEW
-    const event = new CustomEvent('track-view', { detail: res.data });
+    const event = new CustomEvent("track-view", { detail: res.data });
     window.dispatchEvent(event);
-    
   } catch (error) {
     console.error("Error fetching detail:", error);
     router.push("/catalog");
@@ -299,88 +293,6 @@ const fetchProductDetail = async () => {
     }, 600);
   }
 };
-
-// const handleAction = async (type) => {
-//   const token = localStorage.getItem("token");
-//   if (!token) {
-//     Swal.fire({
-//       icon: "info",
-//       title: "Login Required",
-//       text: "Please login to manage your bag.",
-//       confirmButtonColor: "#000",
-//     }).then(() => router.push("/login"));
-//     return;
-//   }
-
-//   try {
-//     await axios.post(
-//       `${BASE_URL}/carts`,
-//       { product_id: product.value.id, quantity: 1 },
-//       { headers: { Authorization: `Bearer ${token}` } }
-//     );
-
-//     if (type === "buy") {
-//       Swal.fire("Success", "Proceeding to checkout...", "success")
-//         .then(() => router.push("/orderpage"));
-//     } else {
-//       Swal.fire({
-//         title: "Added to Bag",
-//         icon: "success",
-//         toast: true,
-//         position: "top-end",
-//         showConfirmButton: false,
-//         timer: 3000,
-//       });
-//     }
-//   } catch (error) {
-//     Swal.fire("Error", error.response?.data?.message || "Failed to add", "error");
-//   }
-// };
-
-// --- Di dalam script setup ProductDetailPage.vue ---
-
-// const handleAction = async (type) => {
-//   const token = localStorage.getItem("token");
-//   if (!token) {
-//     Swal.fire({ icon: "info", title: "Login Required", confirmButtonColor: "#000" }).then(() => router.push("/login"));
-//     return;
-//   }
-
-//   // --- START OPTIMISTIC LOGIC ---
-//   // Kirim data produk ke Header secara instan lewat Event Bus
-//   const event = new CustomEvent('optimistic-add-to-cart', { detail: product.value });
-//   window.dispatchEvent(event);
-
-//   if (type !== "buy") {
-//     Swal.fire({
-//       title: "Added to Bag",
-//       icon: "success",
-//       toast: true,
-//       position: "top-center",
-//       showConfirmButton: false,
-//       timer: 2000,
-//     });
-//   }
-//   // --- END OPTIMISTIC LOGIC ---
-
-//   try {
-//     const res = await axios.post(
-//       `${BASE_URL}/carts`,
-//       { product_id: product.value.id, quantity: 1 },
-//       { headers: { Authorization: `Bearer ${token}` } }
-//     );
-
-//     if (type === "buy") {
-//       router.push("/orderpage");
-//     }
-//     // Opsional: fetchCarts ulang di background jika ingin memastikan ID asli dari DB
-//   } catch (error) {
-//     // Jika API gagal (misal stok habis di server), beri notifikasi dan reload data
-//     Swal.fire("Error", error.response?.data?.message || "Failed to sync bag", "error");
-//     // Emit event untuk memaksa Header melakukan fetch ulang data asli
-//     window.dispatchEvent(new Event('refresh-cart'));
-//   }
-// };
 
 const handleAction = async (type) => {
   const token = localStorage.getItem("token");
@@ -433,14 +345,18 @@ const handleAction = async (type) => {
     }, 10);
 
     // Hapus elemen setelah animasi selesai
-    flyer.addEventListener("transitionend", () => {
-      flyer.remove();
-      // Trigger update data optimistik di Header setelah animasi 'masuk'
-      const event = new CustomEvent("optimistic-add-to-cart", {
-        detail: product.value,
-      });
-      window.dispatchEvent(event);
-    });
+    flyer.addEventListener(
+      "transitionend",
+      () => {
+        flyer.remove();
+        // Trigger update data optimistik di Header setelah animasi 'masuk'
+        const event = new CustomEvent("optimistic-add-to-cart", {
+          detail: product.value,
+        });
+        window.dispatchEvent(event);
+      },
+      { once: true },
+    );
   }
   // --- END FLY ANIMATION LOGIC ---
 

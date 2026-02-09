@@ -93,6 +93,7 @@
 </template>
 
 <script setup>
+import Swal from "sweetalert2";
 import { ref, onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 
@@ -156,17 +157,41 @@ const checkOrientation = () => {
 };
 
 onMounted(() => {
+  getUserData();
   checkOrientation();
   window.addEventListener("resize", checkOrientation);
 });
 
 onUnmounted(() => {
-  getUserData(); // Panggil fungsi ambil nama
   window.removeEventListener("resize", checkOrientation);
 });
 
 const handleLogout = () => {
-  localStorage.clear();
-  router.push("/loginadmin");
+  Swal.fire({
+    title: "Are you sure?",
+    text: "You will be logged out from the admin panel.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#000", // Warna hitam sesuai tema Solher
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, Logout!",
+    cancelButtonText: "Cancel",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      // [3] Eksekusi Logout jika user klik Yes
+      localStorage.clear();
+
+      // Opsional: Tampilkan feedback logout sukses
+      Swal.fire({
+        title: "Logged Out!",
+        text: "See you again.",
+        icon: "success",
+        timer: 1500,
+        showConfirmButton: false,
+      }).then(() => {
+        router.push("/loginadmin");
+      });
+    }
+  });
 };
 </script>

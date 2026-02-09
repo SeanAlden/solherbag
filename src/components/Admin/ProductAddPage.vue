@@ -61,7 +61,7 @@
         >
           <option value="" disabled>Select Category</option>
           <option v-for="cat in categories" :key="cat.id" :value="cat.id">
-            {{ cat.name }}
+            {{ cat.category_name }}
           </option>
         </select>
         <input type="file" @change="handleFile" class="w-full" />
@@ -142,6 +142,6 @@ onMounted(async () => {
   const res = await axios.get(`${BASE_URL}/categories`, {
     headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
   });
-  categories.value = res.data;
+  categories.value = res.data.data;
 });
 </script>

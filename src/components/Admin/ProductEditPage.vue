@@ -81,7 +81,7 @@
           >
             <option value="" disabled>Select Category</option>
             <option v-for="cat in categories" :key="cat.id" :value="cat.id">
-              {{ cat.name }}
+              {{ cat.category_name }}
             </option>
           </select>
         </div>
@@ -174,7 +174,7 @@ onMounted(async () => {
   try {
     // 1. Fetch Categories
     const catRes = await axios.get(`${BASE_URL}/categories`, axiosConfig);
-    categories.value = catRes.data;
+    categories.value = catRes.data.data;
 
     // 2. Fetch Product Detail
     const prodRes = await axios.get(

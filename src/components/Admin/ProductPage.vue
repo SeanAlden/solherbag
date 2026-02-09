@@ -306,8 +306,8 @@ onMounted(fetchData);
           class="bg-gray-50 px-4 py-2 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-black h-[42px] text-gray-700 text-sm transition"
         >
           <option value="">All Categories</option>
-          <option v-for="cat in categories" :key="cat.id" :value="cat.name">
-            {{ cat.name }}
+          <option v-for="cat in categories" :key="cat.id" :value="cat.category_name">
+            {{ cat.category_name }}
           </option>
         </select>
 
@@ -495,7 +495,7 @@ const fetchData = async () => {
       axios.get(`${BASE_URL}/categories`, axiosConfig),
     ]);
     products.value = resProd.data;
-    categories.value = resCat.data;
+    categories.value = resCat.data.data;
   } catch (error) {
     console.error("Fetch error:", error);
   } finally {

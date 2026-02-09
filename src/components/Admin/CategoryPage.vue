@@ -213,7 +213,13 @@ const isEdit = ref(false);
 const isLoading = ref(false); // State untuk loading data tabel
 const isSubmitting = ref(false); // State untuk loading saat tekan save
 const currentId = ref(null);
-const form = ref({ code: '', name: '', description: '' });
+const form = ref({ 
+  category_code: '', 
+  category_name: '', 
+  meta: { 
+    description: '' 
+  } 
+});
 
 const axiosConfig = {
   headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
@@ -232,20 +238,50 @@ const fetchCategories = async () => {
   }
 };
 
+// const openModal = (data = null) => {
+//   isEdit.value = !!data;
+//   currentId.value = data ? data.id : null;
+//   form.value = data ? { ...data } : { code: '', name: '', description: '' };
+//   showModal.value = true;
+// };
+
 const openModal = (data = null) => {
   isEdit.value = !!data;
   currentId.value = data ? data.id : null;
-  form.value = data ? { ...data } : { code: '', name: '', description: '' };
+
+  if (data) {
+    // Mode Edit: Clone data dari tabel (API Resource)
+    // Asumsi data tabel sudah punya struktur: category_code, category_name, meta { description }
+    form.value = JSON.parse(JSON.stringify(data)); 
+  } else {
+    // Mode Add: Reset ke struktur awal yang benar
+    form.value = { 
+      category_code: '', 
+      category_name: '', 
+      meta: { 
+        description: '' 
+      } 
+    };
+  }
+  
   showModal.value = true;
 };
 
 const handleSubmit = async () => {
   isSubmitting.value = true;
+
+  // Mapping data form ke format yang diharapkan Backend Controller
+  const payload = {
+    code: form.value.category_code,
+    name: form.value.category_name,
+    description: form.value.meta.description
+  };
+
   try {
     if (isEdit.value) {
-      await axios.put(`${BASE_URL}/categories/${currentId.value}`, form.value, axiosConfig);
+      await axios.put(`${BASE_URL}/categories/${currentId.value}`, payload, axiosConfig);
     } else {
-      await axios.post(`${BASE_URL}/categories`, form.value, axiosConfig);
+      await axios.post(`${BASE_URL}/categories`, payload, axiosConfig);
     }
     showModal.value = false;
     fetchCategories();

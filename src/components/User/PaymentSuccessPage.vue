@@ -60,7 +60,7 @@ onMounted(() => {
       <!-- Buttons -->
       <div class="space-y-3">
         <button
-          @click="router.push('/orders')"
+          @click="router.push('/orderpage')"
           class="w-full bg-black hover:bg-gray-800 text-white py-3 rounded-lg font-semibold transition"
         >
           View My Orders

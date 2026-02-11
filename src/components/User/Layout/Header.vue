@@ -411,7 +411,6 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import { BASE_URL } from "../../../config/api";
 import SearchModal from "../../User/Layout/SearchModal.vue";
-import CartModal from "../../User/Layout/CartModal.vue";
 
 const isSearchOpen = ref(false);
 

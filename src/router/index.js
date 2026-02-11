@@ -24,6 +24,7 @@ import FaqPage from '../components/User/FaqPage.vue'
 import AboutUsPage from '../components/User/AboutUsPage.vue'
 import InactiveProductPage from '../components/Admin/InactiveProductPage.vue'
 import TransactionDetailPage from '../components/Admin/TransactionDetailPage.vue'
+import PaymentPage from '../components/User/PaymentPage.vue'
 
 // Import komponen lainnya (Anda bisa buat file kosong dulu untuk Catalog & Contact)
 // const CatalogPage = { template: '<div class="py-20 text-center text-3xl">Catalog Page Coming Soon</div>' }
@@ -145,6 +146,12 @@ const routes = [
         component: MessageViewPage,
         meta: { requiresAuth: true, hideHeaderFooter: true, isAdmin: true }
     },
+    {
+        path: '/payment/:id',
+        name: 'PaymentPage',
+        component: PaymentPage,
+        meta: { requiresAuth: true }
+    }
 ]
 
 const router = createRouter({

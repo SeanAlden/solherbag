@@ -238,136 +238,6 @@
     </transition>
 
     <div
-      v-if="isSearchOpen"
-      class="z-[110] fixed inset-0 flex justify-center items-start px-6 pt-[73px]"
-      @click="isSearchOpen = false"
-    >
-      <div class="absolute inset-0 bg-black/10 backdrop-blur-[2px]"></div>
-
-      <div
-        @click.stop
-        class="relative flex flex-col bg-white shadow-2xl border border-gray-100 rounded-b-[2rem] w-full max-w-2xl max-h-[75vh] overflow-hidden animate-slide-down"
-      >
-        <div class="bg-gray-50 px-8 py-6 border-gray-100 border-b">
-          <div class="flex items-center">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="mr-4 w-5 h-5 text-gray-400"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              />
-            </svg>
-            <input
-              v-model="searchInput"
-              type="text"
-              placeholder="Search products..."
-              class="flex-grow bg-transparent border-none outline-none focus:ring-0 font-serif text-base placeholder-gray-300"
-              ref="searchInputRef"
-            />
-            <button
-              @click="isSearchOpen = false"
-              class="ml-4 text-gray-400 hover:text-black transition-all"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="w-5 h-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        <div class="flex-grow px-8 py-8 overflow-y-auto custom-scrollbar">
-          <div v-if="recentlyViewed.length > 0" class="mb-10">
-            <div class="flex justify-between items-end mb-4">
-              <h3
-                class="font-bold text-[9px] text-gray-400 uppercase tracking-[0.25em]"
-              >
-                Recently Viewed
-              </h3>
-              <button
-                @click="clearRecentlyViewed"
-                class="font-bold text-[9px] text-gray-300 hover:text-red-500 uppercase tracking-widest transition-colors"
-              >
-                Clear
-              </button>
-            </div>
-            <div class="gap-4 grid grid-cols-3 md:grid-cols-4">
-              <div
-                v-for="item in recentlyViewed"
-                :key="item.id"
-                class="group cursor-pointer"
-                @click="navigateToProduct(item.id)"
-              >
-                <div
-                  class="relative bg-gray-50 shadow-sm mb-2 rounded-xl aspect-square overflow-hidden"
-                >
-                  <img
-                    :src="item.image"
-                    class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                </div>
-                <h4
-                  class="font-bold text-[9px] text-gray-900 truncate uppercase"
-                >
-                  {{ item.name }}
-                </h4>
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <h3
-              class="mb-4 font-bold text-[9px] text-gray-400 uppercase tracking-[0.25em]"
-            >
-              You May Also Like
-            </h3>
-            <div class="gap-4 grid grid-cols-3 md:grid-cols-4">
-              <div
-                v-for="product in randomProducts"
-                :key="product.id"
-                class="group cursor-pointer"
-                @click="navigateToProduct(product.id)"
-              >
-                <div
-                  class="relative bg-gray-50 shadow-sm mb-2 rounded-xl aspect-square overflow-hidden"
-                >
-                  <img
-                    :src="product.image"
-                    class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                </div>
-                <h4
-                  class="font-bold text-[9px] text-gray-900 truncate uppercase"
-                >
-                  {{ product.name }}
-                </h4>
-                <p class="mt-0.5 text-[8px] text-gray-400">
-                  {{ formatPrice(product.discount_price ?? product.price) }}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div
       v-if="isCartOpen"
       class="z-[100] fixed inset-0 flex justify-center items-center p-4"
     >
@@ -531,19 +401,33 @@
       </div>
     </div>
   </header>
+  <SearchModal v-if="isSearchOpen" @close="closeSearch" />
 </template>
 
 <script setup>
 import { ref, onMounted, onUnmounted, watch, computed } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { BASE_URL } from "../../../config/api";
+import SearchModal from "../../User/Layout/SearchModal.vue";
+import CartModal from "../../User/Layout/CartModal.vue";
+
+const isSearchOpen = ref(false);
+
+const openSearch = () => {
+  isSearchOpen.value = true;
+};
+
+const closeSearch = () => {
+  isSearchOpen.value = false;
+};
 
 const isDropdownOpen = ref(false);
 const isAuthenticated = ref(false);
 const userData = ref(null);
 const route = useRoute();
+const router = useRouter();
 
 const isCartOpen = ref(false);
 const cartItems = ref([]);
@@ -554,7 +438,7 @@ const cartCount = computed(() => {
 const isBadgePopping = ref(false);
 let debounceTimer = null;
 
-const isSearchOpen = ref(false);
+// const isSearchOpen = ref(false);
 const searchInput = ref("");
 const searchInputRef = ref(null);
 const recentlyViewed = ref([]);
@@ -587,24 +471,6 @@ const getRandomProducts = () => {
   if (allProducts.value.length === 0) return;
   const shuffled = [...allProducts.value].sort(() => 0.5 - Math.random());
   randomProducts.value = shuffled.slice(0, 6);
-};
-
-const openSearch = () => {
-  if (isSearchOpen.value) {
-    isSearchOpen.value = false;
-    return;
-  }
-
-  loadRecentlyViewed();
-  getRandomProducts();
-  isSearchOpen.value = true;
-
-  setTimeout(() => searchInputRef.value?.focus(), 150);
-};
-
-const navigateToProduct = (id) => {
-  isSearchOpen.value = false;
-  route.push(`/product/${id}`);
 };
 
 const totalCartAmount = computed(() => {
@@ -713,31 +579,126 @@ const handleOptimisticAdd = (event) => {
   setTimeout(() => (isBadgePopping.value = false), 300);
 };
 
+// const handleCheckout = async () => {
+//   try {
+//     const res = await axios.post(
+//       `${BASE_URL}/checkout`,
+//       {},
+//       {
+//         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+//       },
+//     );
+
+//     isCartOpen.value = false;
+//     Swal.fire({
+//       title: "Order Placed!",
+//       text: `Your order ${res.data.order_id} is being processed.`,
+//       icon: "success",
+//       confirmButtonColor: "#000",
+//     }).then(() => {
+//       window.location.href = "/orderpage";
+//     });
+//   } catch (error) {
+//     Swal.fire(
+//       "Error",
+//       error.response?.data?.message || "Checkout failed",
+//       "error",
+//     );
+//   }
+// };
+
+// const handleCheckout = async () => {
+//   const res = await axios.post(
+//     `${BASE_URL}/checkout`,
+//     {},
+//     {
+//       headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+//     },
+//   );
+
+//   router.push(`/payment/${res.data.transaction_id}`);
+// };
+
+// const handleCheckout = async () => {
+//   try {
+//     const res = await axios.post(
+//       `${BASE_URL}/checkout`,
+//       {},
+//       {
+//         headers: {
+//           Authorization: `Bearer ${localStorage.getItem("token")}`,
+//         },
+//       },
+//     );
+
+//     const transactionId =
+//       res.data.transaction_id ?? res.data.data?.transaction_id;
+
+//     if (!transactionId) {
+//       throw new Error("Transaction ID not found");
+//     }
+
+//     router.push(`/payment/${transactionId}`);
+//   } catch (err) {
+//     console.error(err);
+//     Swal.fire({
+//       icon: "error",
+//       title: "Checkout Failed",
+//       text: "Unable to proceed to payment.",
+//     });
+//   }
+// };
+
 const handleCheckout = async () => {
   try {
     const res = await axios.post(
       `${BASE_URL}/checkout`,
       {},
       {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
       },
     );
 
-    isCartOpen.value = false;
-    Swal.fire({
-      title: "Order Placed!",
-      text: `Your order ${res.data.order_id} is being processed.`,
-      icon: "success",
-      confirmButtonColor: "#000",
-    }).then(() => {
-      window.location.href = "/orderpage";
-    });
-  } catch (error) {
-    Swal.fire(
-      "Error",
-      error.response?.data?.message || "Checkout failed",
-      "error",
+    // const transactionId =
+    //   res.data.transaction_id ?? res.data.data?.transaction_id;
+
+    // if (!transactionId) {
+    //   throw new Error("Transaction ID not found");
+    // }
+
+    const transactionId =
+      res.data.transaction_id || res.data.data?.transaction_id || res.data.id;
+
+    if (!transactionId) {
+      throw new Error("Transaction ID not found in response");
+    }
+
+    // TUTUP MODAL CART
+    // isCartOpen.value = false;
+
+    watch(
+      () => route.path,
+      () => {
+        isCartOpen.value = false;
+      },
     );
+
+    // Optional: reset badge animation state
+    isBadgePopping.value = false;
+
+    // router.push(`/payment/${transactionId}`);
+    setTimeout(() => {
+      router.push(`/payment/${transactionId}`);
+    }, 300); // sesuaikan dengan durasi animasi modal
+  } catch (err) {
+    console.error(err);
+    Swal.fire({
+      icon: "error",
+      title: "Checkout Failed",
+      text: "Unable to proceed to payment.",
+    });
   }
 };
 

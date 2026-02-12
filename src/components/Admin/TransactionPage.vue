@@ -317,7 +317,7 @@ tr {
 }
 </style> -->
 
-<template>
+<!-- <template>
   <div class="relative bg-white shadow-sm p-8 border border-gray-100 rounded-2xl min-h-[600px]">
     <div class="overflow-x-auto">
       <table class="w-full text-left">
@@ -391,7 +391,6 @@ tr {
 </template>
 
 <script setup>
-// ... import existing ...
 import { ref, onMounted, computed, watch } from "vue";
 import axios from "axios";
 import Swal from "sweetalert2";
@@ -407,7 +406,6 @@ const searchQuery = ref("");
 const currentPage = ref(1);
 const itemsPerPage = ref(10); // Default 10 items
 
-// ... existing logic ...
 const transactions = ref([]);
 const axiosConfig = {
   headers: { Authorization: `Bearer ${localStorage.getItem("admin_token")}` },
@@ -519,10 +517,16 @@ const updateStatus = async (id, newStatus) => {
 
 const statusClass = (status) => {
   const map = {
-    pending: "bg-amber-100 text-amber-600",
-    processing: "bg-blue-100 text-blue-600",
-    completed: "bg-green-100 text-green-600",
-    cancelled: "bg-red-100 text-red-600",
+    awaiting_payment: "bg-yellow-100 text-yellow-700", 
+    pending: "bg-orange-100 text-orange-700", 
+    processing: "bg-blue-100 text-blue-700", 
+    completed: "bg-green-100 text-green-700", 
+    cancelled: "bg-red-100 text-red-700", 
+    refund_requested: "bg-purple-100 text-purple-700",
+    refund_approved: "bg-indigo-100 text-indigo-700",
+    refund_rejected: "bg-gray-200 text-gray-600 line-through",
+    refunded: "bg-teal-100 text-teal-700",
+    refund_manual_required: "bg-pink-100 text-pink-700",
   };
   return map[status] || "bg-gray-100 text-gray-500";
 };
@@ -539,8 +543,6 @@ const formatDate = (date) =>
     hour: "2-digit",
     minute: "2-digit",
   });
-
-// ... Fetch logic same ...
 
 const handleRefundAction = async (id, action) => {
   const endpoint = action === 'approve' ? 'refund-approve' : 'refund-reject';
@@ -568,8 +570,6 @@ const handleRefundAction = async (id, action) => {
 
 const formatStatus = (s) => s.replace(/_/g, ' ');
 
-// ... existing helpers ...
-// ... onMounted ...
 onMounted(fetchTransactions);
 </script>
 <style scoped>
@@ -579,3 +579,429 @@ tr {
 }
 </style> -->
 
+<template>
+  <div
+    class="relative bg-white shadow-sm p-8 border border-gray-100 rounded-2xl min-h-[600px]"
+  >
+    <div
+      v-if="isLoading"
+      class="z-20 absolute inset-0 flex justify-center items-center bg-white/60 backdrop-blur-[2px] rounded-2xl transition-all duration-300"
+    >
+      <div class="flex flex-col items-center">
+        <div
+          class="border-4 border-gray-200 border-t-black rounded-full w-12 h-12 animate-spin"
+        ></div>
+        <p
+          class="mt-4 font-bold text-black text-xs uppercase tracking-widest animate-pulse"
+        >
+          Processing Data...
+        </p>
+      </div>
+    </div>
+
+    <div
+      class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8"
+    >
+      <div>
+        <h1 class="font-bold text-gray-800 text-2xl">Transaction Monitoring</h1>
+        <p class="text-gray-500 text-sm">
+          Manage and track all customer orders in real-time.
+        </p>
+      </div>
+      <div class="bg-gray-50 px-6 py-3 border border-gray-100 rounded-2xl">
+        <span
+          class="block font-black text-[10px] text-gray-400 uppercase tracking-widest"
+          >Total Revenue</span
+        >
+        <span class="font-bold text-green-600 text-xl">{{
+          formatPrice(totalRevenue)
+        }}</span>
+      </div>
+    </div>
+
+    <div
+      class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6"
+    >
+      <div class="relative w-full md:w-80">
+        <span
+          class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-5 h-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
+          </svg>
+        </span>
+        <input
+          v-model="searchQuery"
+          type="text"
+          placeholder="Search Order ID, Name, or Email..."
+          class="bg-gray-50 pl-10 pr-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black outline-none w-full text-sm transition"
+        />
+      </div>
+
+      <div class="flex items-center gap-3">
+        <span class="text-xs font-bold text-gray-400 uppercase tracking-wide"
+          >Show:</span
+        >
+        <select
+          v-model="itemsPerPage"
+          class="bg-gray-50 px-3 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black outline-none text-sm font-bold cursor-pointer"
+        >
+          <option :value="5">5</option>
+          <option :value="10">10</option>
+          <option :value="20">20</option>
+          <option :value="50">50</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left">
+        <thead>
+          <tr class="border-b text-gray-400 text-xs uppercase tracking-widest">
+            <th class="pb-4">Order ID & Date</th>
+            <th class="pb-4">Customer</th>
+            <th class="pb-4">Items</th>
+            <th class="pb-4">Total Amount</th>
+            <th class="pb-4">Status</th>
+            <th class="pb-4 text-center">Action</th>
+          </tr>
+        </thead>
+        <tbody class="text-gray-600">
+          <tr
+            v-for="trx in paginatedTransactions"
+            :key="trx.id"
+            class="group hover:bg-gray-50 border-gray-50 border-b transition cursor-pointer"
+            @click="goToDetail(trx)"
+          >
+            <td class="py-6">
+              <span class="block font-mono font-bold text-black">{{
+                trx.order_id
+              }}</span>
+              <span class="text-gray-400 text-xs">{{
+                formatDate(trx.created_at)
+              }}</span>
+            </td>
+            <td class="py-6">
+              <span class="block font-bold text-gray-800 text-sm">{{
+                trx.user.first_name
+              }}</span>
+            </td>
+            <td class="py-6">
+              <span class="text-xs">{{ trx.details.length }} items</span>
+            </td>
+            <td class="py-6">
+              <span class="font-bold text-black">{{
+                formatPrice(trx.total_amount)
+              }}</span>
+            </td>
+
+            <td class="py-6">
+              <span
+                :class="statusClass(trx.status)"
+                class="px-3 py-1 rounded-full font-bold text-[10px] uppercase tracking-tighter"
+              >
+                {{ formatStatus(trx.status) }}
+              </span>
+            </td>
+
+            <td class="py-6 text-center" @click.stop>
+              <div
+                v-if="trx.status === 'refund_requested'"
+                class="flex justify-center gap-2"
+              >
+                <button
+                  @click="handleRefundAction(trx.id, 'approve')"
+                  class="bg-green-100 hover:bg-green-200 p-2 rounded-lg text-green-600 transition"
+                  title="Approve Refund"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="w-5 h-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                </button>
+                <button
+                  @click="handleRefundAction(trx.id, 'reject')"
+                  class="bg-red-100 hover:bg-red-200 p-2 rounded-lg text-red-600 transition"
+                  title="Reject Refund"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="w-5 h-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+              <span v-else class="text-gray-400 text-[10px] italic"
+                >No Action</span
+              >
+            </td>
+          </tr>
+
+          <tr v-if="!isLoading && paginatedTransactions.length === 0">
+            <td
+              colspan="6"
+              class="py-20 font-serif text-gray-400 text-center italic"
+            >
+              {{
+                searchQuery
+                  ? "No transactions match your search."
+                  : "No transactions found."
+              }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div
+      v-if="!isLoading && filteredTransactions.length > 0"
+      class="flex flex-col md:flex-row justify-between items-center gap-4 mt-8 pt-6 border-t border-gray-50"
+    >
+      <p class="text-sm text-gray-400">
+        Showing <span class="font-bold text-black">{{ showingStart }}</span> to
+        <span class="font-bold text-black">{{ showingEnd }}</span> of
+        <span class="font-bold text-black">{{
+          filteredTransactions.length
+        }}</span>
+        orders
+      </p>
+
+      <div class="flex gap-2">
+        <button
+          @click="currentPage--"
+          :disabled="currentPage === 1"
+          class="px-4 py-2 border rounded-xl hover:bg-gray-50 disabled:opacity-30 transition disabled:cursor-not-allowed text-sm font-medium"
+        >
+          Previous
+        </button>
+
+        <button
+          v-for="page in displayedPages"
+          :key="page"
+          @click="currentPage = page"
+          :class="
+            currentPage === page
+              ? 'bg-black text-white border-black'
+              : 'hover:bg-gray-50 border-gray-200'
+          "
+          class="w-10 h-10 border rounded-xl font-medium transition flex items-center justify-center text-sm"
+        >
+          {{ page }}
+        </button>
+
+        <button
+          @click="currentPage++"
+          :disabled="currentPage === totalPages"
+          class="px-4 py-2 border rounded-xl hover:bg-gray-50 disabled:opacity-30 transition disabled:cursor-not-allowed text-sm font-medium"
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+// Script tetap sama karena logika sudah ada sebelumnya
+import { ref, onMounted, computed, watch } from "vue";
+import axios from "axios";
+import Swal from "sweetalert2";
+import { BASE_URL } from "../../config/api.js";
+import { useRouter } from "vue-router";
+
+const transactions = ref([]); // Pastikan ini array kosong dulu
+const isLoading = ref(false);
+const router = useRouter();
+
+// --- Pagination & Filter States ---
+const searchQuery = ref("");
+const currentPage = ref(1);
+const itemsPerPage = ref(10); // Default 10 items
+
+const axiosConfig = {
+  headers: { Authorization: `Bearer ${localStorage.getItem("admin_token")}` },
+};
+
+const goToDetail = (trx) => {
+  router.push({
+    name: "TransactionDetail",
+    params: { id: trx.id },
+    state: { transactionData: JSON.parse(JSON.stringify(trx)) },
+  });
+};
+
+const totalRevenue = computed(() => {
+  return transactions.value
+    .filter((t) => t.status === "completed")
+    .reduce((acc, curr) => acc + parseFloat(curr.total_amount), 0);
+});
+
+// --- Computed Logic untuk Searching & Pagination ---
+
+const filteredTransactions = computed(() => {
+  const query = searchQuery.value.toLowerCase();
+  if (!query) return transactions.value;
+
+  return transactions.value.filter(
+    (t) =>
+      t.order_id.toLowerCase().includes(query) ||
+      t.user.first_name.toLowerCase().includes(query) ||
+      t.user.last_name.toLowerCase().includes(query) ||
+      t.user.email.toLowerCase().includes(query),
+  );
+});
+
+const totalPages = computed(() =>
+  Math.ceil(filteredTransactions.value.length / itemsPerPage.value),
+);
+
+const paginatedTransactions = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return filteredTransactions.value.slice(start, end);
+});
+
+const showingStart = computed(() => {
+  if (filteredTransactions.value.length === 0) return 0;
+  return (currentPage.value - 1) * itemsPerPage.value + 1;
+});
+
+const showingEnd = computed(() =>
+  Math.min(
+    currentPage.value * itemsPerPage.value,
+    filteredTransactions.value.length,
+  ),
+);
+
+const displayedPages = computed(() => {
+  const total = totalPages.value;
+  const current = currentPage.value;
+  const delta = 2;
+
+  let range = [];
+  for (
+    let i = Math.max(1, current - delta);
+    i <= Math.min(total, current + delta);
+    i++
+  ) {
+    range.push(i);
+  }
+  return range;
+});
+
+watch([searchQuery, itemsPerPage], () => {
+  currentPage.value = 1;
+});
+
+const fetchTransactions = async () => {
+  isLoading.value = true;
+  try {
+    const res = await axios.get(`${BASE_URL}/admin/transactions`, axiosConfig);
+    transactions.value = res.data;
+  } catch (error) {
+    Swal.fire("Error", "Failed to fetch transactions", "error");
+  } finally {
+    setTimeout(() => (isLoading.value = false), 500);
+  }
+};
+
+// ... (Sisa fungsi helper seperti formatPrice, formatDate, handleRefundAction tetap sama) ...
+const statusClass = (status) => {
+  const map = {
+    awaiting_payment: "bg-yellow-100 text-yellow-700",
+    pending: "bg-orange-100 text-orange-700",
+    processing: "bg-blue-100 text-blue-700",
+    completed: "bg-green-100 text-green-700",
+    cancelled: "bg-red-100 text-red-700",
+    refund_requested: "bg-purple-100 text-purple-700",
+    refund_approved: "bg-indigo-100 text-indigo-700",
+    refund_rejected: "bg-gray-200 text-gray-600 line-through",
+    refunded: "bg-teal-100 text-teal-700",
+    refund_manual_required: "bg-pink-100 text-pink-700",
+  };
+  return map[status] || "bg-gray-100 text-gray-500";
+};
+
+const formatPrice = (v) =>
+  new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(
+    v,
+  );
+const formatDate = (date) =>
+  new Date(date).toLocaleDateString("id-ID", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+const formatStatus = (s) => s.replace(/_/g, " ");
+
+const handleRefundAction = async (id, action) => {
+  const endpoint = action === "approve" ? "refund-approve" : "refund-reject";
+  const confirmText =
+    action === "approve"
+      ? "Approve this refund request?"
+      : "Reject this refund request?";
+
+  const result = await Swal.fire({
+    title: "Confirm Action",
+    text: confirmText,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#000",
+    confirmButtonText: "Yes, proceed!",
+  });
+
+  if (result.isConfirmed) {
+    try {
+      await axios.post(
+        `${BASE_URL}/admin/transactions/${id}/${endpoint}`,
+        {},
+        axiosConfig,
+      );
+      Swal.fire("Success", `Refund ${action}d successfully`, "success");
+      fetchTransactions();
+    } catch (err) {
+      Swal.fire("Error", "Action failed", "error");
+    }
+  }
+};
+
+onMounted(fetchTransactions);
+</script>
+
+<style scoped>
+tr {
+  transition: all 0.2s ease-in-out;
+}
+</style>

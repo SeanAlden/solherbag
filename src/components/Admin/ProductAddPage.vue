@@ -140,7 +140,7 @@ const handleSubmit = async () => {
 
 onMounted(async () => {
   const res = await axios.get(`${BASE_URL}/categories`, {
-    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    headers: { Authorization: `Bearer ${localStorage.getItem("admin_token")}` },
   });
   categories.value = res.data.data;
 });

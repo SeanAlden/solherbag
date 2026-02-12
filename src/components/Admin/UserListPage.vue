@@ -357,7 +357,7 @@ const currentPage = ref(1);
 const itemsPerPage = ref(10); // Default tampilkan 10 user per halaman
 
 const axiosConfig = {
-  headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+  headers: { Authorization: `Bearer ${localStorage.getItem("admin_token")}` },
 };
 
 // --- Computed Properties ---

@@ -181,40 +181,63 @@ const router = createRouter({
 // Navigation Guard
 // router.beforeEach((to, from, next) => {
 //     const isAuthenticated = localStorage.getItem('token');
+//     const userString = localStorage.getItem('user');
+//     const user = userString ? JSON.parse(userString) : null;
 
+//     // Cek apakah rute yang dituju adalah area admin
+//     const isAccessingAdmin = to.path.startsWith('/admin') || to.meta.isAdmin;
+
+//     // 1. Jika Belum Login
 //     if (to.meta.requiresAuth && !isAuthenticated) {
-//         next('/login'); // Jika belum login, lempar ke halaman login
-//     } else {
+//         if (isAccessingAdmin) {
+//             next('/loginadmin'); // Lempar ke Login Admin
+//         } else {
+//             next('/login'); // Lempar ke Login User
+//         }
+//     }
+//     // 2. Jika Sudah Login tapi User Biasa mencoba akses Admin
+//     else if (isAccessingAdmin && user?.usertype !== 'admin') {
+//         // Jika user nekat masuk ke /admin/... padahal tipenya bukan admin
+//         next('/login'); // Atau lempar ke halaman 403 / Home
+//     }
+//     // 3. Jika Kondisi Terpenuhi
+//     else {
 //         next();
 //     }
 // });
 
-// Navigation Guard
 router.beforeEach((to, from, next) => {
-    const isAuthenticated = localStorage.getItem('token');
-    const userString = localStorage.getItem('user');
-    const user = userString ? JSON.parse(userString) : null;
+    const userToken = localStorage.getItem('token');
+    const adminToken = localStorage.getItem('admin_token');
 
-    // Cek apakah rute yang dituju adalah area admin
+    const userString = localStorage.getItem('user');
+    const adminString = localStorage.getItem('admin');
+
+    const user = userString ? JSON.parse(userString) : null;
+    const admin = adminString ? JSON.parse(adminString) : null;
+
     const isAccessingAdmin = to.path.startsWith('/admin') || to.meta.isAdmin;
 
-    // 1. Jika Belum Login
-    if (to.meta.requiresAuth && !isAuthenticated) {
+    // Jika route butuh auth
+    if (to.meta.requiresAuth) {
+
+        // Jika akses admin area
         if (isAccessingAdmin) {
-            next('/admin/login'); // Lempar ke Login Admin
-        } else {
-            next('/login'); // Lempar ke Login User
+            if (!adminToken || !admin) {
+                return next('/loginadmin');
+            }
+            return next();
         }
+
+        // Jika akses user area
+        if (!userToken || !user) {
+            return next('/login');
+        }
+
+        return next();
     }
-    // 2. Jika Sudah Login tapi User Biasa mencoba akses Admin
-    else if (isAccessingAdmin && user?.usertype !== 'admin') {
-        // Jika user nekat masuk ke /admin/... padahal tipenya bukan admin
-        next('/login'); // Atau lempar ke halaman 403 / Home
-    }
-    // 3. Jika Kondisi Terpenuhi
-    else {
-        next();
-    }
+
+    next();
 });
 
 export default router

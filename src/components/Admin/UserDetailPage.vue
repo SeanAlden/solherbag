@@ -62,7 +62,7 @@ import { BASE_URL } from "../../config/api.js";
 const route = useRoute();
 const user = ref(null);
 const axiosConfig = {
-  headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+  headers: { Authorization: `Bearer ${localStorage.getItem("admin_token")}` },
 };
 
 onMounted(async () => {

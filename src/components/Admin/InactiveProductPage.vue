@@ -67,7 +67,7 @@ const products = ref([]);
 const isLoading = ref(false);
 
 const axiosConfig = {
-  headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+  headers: { Authorization: `Bearer ${localStorage.getItem("admin_token")}` },
 };
 
 const fetchData = async () => {

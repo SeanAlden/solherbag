@@ -31,23 +31,6 @@
         </span>
       </button>
 
-      <!-- <div
-        @click="goToProfile"
-        class="group flex items-center gap-3 cursor-pointer"
-      >
-        <div class="hidden sm:block text-right">
-          <p
-            class="font-bold text-gray-900 group-hover:text-blue-600 text-xs transition"
-          >
-            Administrator
-          </p>
-        </div>
-        <img
-          src="../../../../src/assets/profile.png"
-          alt="Admin Profile"
-          class="border border-gray-200 group-hover:border-blue-500 rounded-full w-9 h-9 object-cover transition"
-        />
-      </div> -->
       <router-link
         to="/admin/profile"
         class="group flex items-center gap-3 cursor-pointer"
@@ -59,8 +42,14 @@
             Administrator
           </p>
         </div>
-        <img
+        <!-- <img
           src="../../../../src/assets/profile.png"
+          alt="Admin Profile"
+          class="border border-gray-200 group-hover:border-blue-500 rounded-full w-9 h-9 object-cover transition"
+        /> -->
+        <img
+          :src="profileImage"
+          @error="handleImageError"
           alt="Admin Profile"
           class="border border-gray-200 group-hover:border-blue-500 rounded-full w-9 h-9 object-cover transition"
         />
@@ -71,10 +60,38 @@
 
 <script setup>
 import Swal from "sweetalert2";
+import { computed, onMounted, ref } from "vue";
 
 import { useRouter } from "vue-router";
+// import defaultProfile from "../../../../src/assets/profile.png"; 
+import defaultProfile from "../../../../src/assets/profile.png"; 
 
 const router = useRouter();
+const adminData = ref(null);
+
+const updateHeaderImage = (e) => {
+  if (adminData.value) {
+    adminData.value.profile_image = e.detail;
+  }
+};
+
+onMounted(() => {
+  const admin = localStorage.getItem("admin");
+  if (admin) {
+    adminData.value = JSON.parse(admin);
+  }
+
+  // Dengarkan perubahan gambar dari Profile Page
+  window.addEventListener("admin-image-updated", updateHeaderImage);
+});
+
+const profileImage = computed(() => {
+  return adminData.value?.profile_image || defaultProfile;
+});
+
+const handleImageError = (event) => {
+  event.target.src = defaultProfile;
+};
 
 const showAlert = (message) => {
   Swal.fire({

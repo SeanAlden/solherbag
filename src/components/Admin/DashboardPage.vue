@@ -217,7 +217,7 @@ const pieData = ref({ labels: [], datasets: [] });
 const isLoading = ref(true);
 
 const axiosConfig = {
-  headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+  headers: { Authorization: `Bearer ${localStorage.getItem("admin_token")}` },
 };
 
 const fetchData = async () => {

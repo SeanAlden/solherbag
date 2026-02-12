@@ -292,7 +292,7 @@ const currentPage = ref(1);
 const itemsPerPage = ref(5); // Default 5 items
 
 const axiosConfig = {
-  headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+  headers: { Authorization: `Bearer ${localStorage.getItem("admin_token")}` },
 };
 
 // --- Computed Properties for Pagination ---

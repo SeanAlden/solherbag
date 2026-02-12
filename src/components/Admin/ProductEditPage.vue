@@ -162,7 +162,7 @@ const form = ref({
 });
 
 const axiosConfig = {
-  headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+  headers: { Authorization: `Bearer ${localStorage.getItem("admin_token")}` },
 };
 
 const handleFile = (e) => {

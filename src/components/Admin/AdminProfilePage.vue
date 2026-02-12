@@ -155,10 +155,45 @@ const fetchAdminProfile = async () => {
   }
 };
 
+// const handleImageUpdate = async (e) => {
+//   const file = e.target.files[0];
+//   if (!file) return;
+
+//   const formData = new FormData();
+//   formData.append("image", file);
+
+//   try {
+//     const res = await axios.post(`${BASE_URL}/admin/update-image`, formData, {
+//       headers: {
+//         Authorization: `Bearer ${localStorage.getItem("admin_token")}`,
+//         "Content-Type": "multipart/form-data",
+//       },
+//     });
+
+//     updateAdminData(res.data.admin);
+//     Swal.fire("Success", "Profile image updated!", "success");
+//   } catch {
+//     Swal.fire("Error", "Failed to upload image", "error");
+//   }
+// };
+
 const handleImageUpdate = async (e) => {
   const file = e.target.files[0];
   if (!file) return;
 
+  // 1. OPTIMISTIC UPDATE (Tampilan Instan)
+  const objectUrl = URL.createObjectURL(file);
+  const oldImage = adminData.value.profile_image;
+  
+  // Update state lokal
+  adminData.value.profile_image = objectUrl;
+
+  // Trigger event global agar AdminHeader.vue ikut berubah secara instan
+  window.dispatchEvent(new CustomEvent("admin-image-updated", { 
+    detail: objectUrl 
+  }));
+
+  // 2. PROSES UPLOAD (Background)
   const formData = new FormData();
   formData.append("image", file);
 
@@ -170,10 +205,21 @@ const handleImageUpdate = async (e) => {
       },
     });
 
-    updateAdminData(res.data.admin);
-    Swal.fire("Success", "Profile image updated!", "success");
-  } catch {
-    Swal.fire("Error", "Failed to upload image", "error");
+    if (res.data.admin) {
+      // Sync data permanen dari server
+      updateAdminData(res.data.admin);
+      URL.revokeObjectURL(objectUrl); // Bersihkan memori browser
+    }
+  } catch (err) {
+    // 3. ROLLBACK (Jika Gagal)
+    adminData.value.profile_image = oldImage;
+    
+    // Kembalikan gambar di Header ke semula
+    window.dispatchEvent(new CustomEvent("admin-image-updated", { 
+      detail: oldImage 
+    }));
+
+    Swal.fire("Error", "Failed to upload image to server", "error");
   }
 };
 
@@ -209,7 +255,7 @@ const submitPasswordUpdate = async () => {
 const handleLogout = () => {
   localStorage.removeItem("admin_token");
   localStorage.removeItem("admin");
-  router.push("/admin/login");
+  router.push("/loginadmin");
 };
 
 onMounted(() => {

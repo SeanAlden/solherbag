@@ -476,7 +476,7 @@ const currentPage = ref(1);
 const itemsPerPage = ref(5);
 
 const axiosConfig = {
-  headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+  headers: { Authorization: `Bearer ${localStorage.getItem("admin_token")}` },
 };
 
 const filteredProducts = computed(() => {

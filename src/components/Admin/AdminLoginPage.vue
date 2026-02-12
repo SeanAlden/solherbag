@@ -47,8 +47,8 @@ const handleAdminLogin = async () => {
       password: password.value,
     });
 
-    localStorage.setItem("token", response.data.access_token);
-    localStorage.setItem("user", JSON.stringify(response.data.user));
+    localStorage.setItem("admin_token", response.data.access_token);
+    localStorage.setItem("admin", JSON.stringify(response.data.user));
     localStorage.setItem("role", "admin");
 
     Swal.fire({

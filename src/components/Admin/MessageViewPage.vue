@@ -286,7 +286,7 @@ const fetchMessages = async () => {
   isLoading.value = true;
   try {
     const res = await axios.get(`${BASE_URL}/admin/messages`, {
-      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      headers: { Authorization: `Bearer ${localStorage.getItem('admin_token')}` }
     });
     // Asumsi response structure sesuai ContactResource { data: [...] }
     messages.value = res.data.data ? res.data.data : res.data; 

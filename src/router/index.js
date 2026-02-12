@@ -166,6 +166,7 @@ const routes = [
         path: "/payment-success",
         name: "PaymentSuccess",
         component: PaymentSuccessPage,
+        meta: { requiresAuth: true, hideHeaderFooter: true }
     }
 ]
 

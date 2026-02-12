@@ -357,7 +357,7 @@ tr {
 
             <td class="py-6 text-center" @click.stop>
               
-              <div v-if="trx.status === 'refund requested'" class="flex justify-center gap-2">
+              <div v-if="trx.status === 'refund_requested'" class="flex justify-center gap-2">
                 <button 
                   @click="handleRefundAction(trx.id, 'approve')"
                   class="bg-green-100 hover:bg-green-200 p-2 rounded-lg text-green-600 transition" 

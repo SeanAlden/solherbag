@@ -359,7 +359,7 @@ const fetchOrders = async () => {
 };
 
 // Helper: Cek status apakah user masih bisa bayar
-const canPay = (status) => ['awaiting payment', 'pending'].includes(status);
+const canPay = (status) => ['awaiting_payment', 'pending'].includes(status);
 
 // Logic Redirect ke Xendit (Nomor 1 & 2)
 const handleOrderClick = (order) => {
@@ -467,14 +467,14 @@ const formatStatus = (status) => status.replace(/_/g, ' ');
 
 const statusClass = (status) => {
   const map = {
-    // awaiting_payment: 'bg-yellow-100 text-yellow-700', // Nomor 1
+    awaiting_payment: 'bg-yellow-100 text-yellow-700', // Nomor 1
     pending: 'bg-orange-100 text-orange-700',          // Nomor 2
     processing: 'bg-blue-100 text-blue-700',           // Nomor 4
     completed: 'bg-green-100 text-green-700',          // Nomor 5
     cancelled: 'bg-red-100 text-red-700',              // Nomor 3
-    // refund_requested: 'bg-purple-100 text-purple-700',
-    // refund_approved: 'bg-indigo-100 text-indigo-700',
-    // refund_rejected: 'bg-gray-200 text-gray-600 line-through',
+    refund_requested: 'bg-purple-100 text-purple-700',
+    refund_approved: 'bg-indigo-100 text-indigo-700',
+    refund_rejected: 'bg-gray-200 text-gray-600 line-through',
     refunded: 'bg-teal-100 text-teal-700'
   };
   return map[status] || 'bg-gray-100 text-gray-500';

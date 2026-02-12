@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <div
     class="relative bg-white shadow-sm p-8 border border-gray-100 rounded-2xl min-h-[600px]"
   >
@@ -315,4 +315,267 @@ onMounted(fetchTransactions);
 tr {
   transition: all 0.2s ease-in-out;
 }
-</style>
+</style> -->
+
+<template>
+  <div class="relative bg-white shadow-sm p-8 border border-gray-100 rounded-2xl min-h-[600px]">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left">
+        <thead>
+          <tr class="border-b text-gray-400 text-xs uppercase tracking-widest">
+            <th class="pb-4">Order ID & Date</th>
+            <th class="pb-4">Customer</th>
+            <th class="pb-4">Items</th>
+            <th class="pb-4">Total Amount</th>
+            <th class="pb-4">Status</th>
+            <th class="pb-4 text-center">Action</th> </tr>
+        </thead>
+        <tbody class="text-gray-600">
+          <tr v-for="trx in paginatedTransactions" :key="trx.id" 
+              class="group hover:bg-gray-50 border-gray-50 border-b transition cursor-pointer"
+              @click="goToDetail(trx)">
+            
+            <td class="py-6">
+                <span class="block font-mono font-bold text-black">{{ trx.order_id }}</span>
+                <span class="text-gray-400 text-xs">{{ formatDate(trx.created_at) }}</span>
+            </td>
+            <td class="py-6">
+                <span class="block font-bold text-gray-800 text-sm">{{ trx.user.first_name }}</span>
+            </td>
+            <td class="py-6">
+               <span class="text-xs">{{ trx.details.length }} items</span>
+            </td>
+            <td class="py-6">
+               <span class="font-bold text-black">{{ formatPrice(trx.total_amount) }}</span>
+            </td>
+
+            <td class="py-6">
+              <span :class="statusClass(trx.status)" class="px-3 py-1 rounded-full font-bold text-[10px] uppercase tracking-tighter">
+                {{ formatStatus(trx.status) }}
+              </span>
+            </td>
+
+            <td class="py-6 text-center" @click.stop>
+              
+              <div v-if="trx.status === 'refund requested'" class="flex justify-center gap-2">
+                <button 
+                  @click="handleRefundAction(trx.id, 'approve')"
+                  class="bg-green-100 hover:bg-green-200 p-2 rounded-lg text-green-600 transition" 
+                  title="Approve Refund"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                </button>
+                <button 
+                  @click="handleRefundAction(trx.id, 'reject')"
+                  class="bg-red-100 hover:bg-red-200 p-2 rounded-lg text-red-600 transition"
+                  title="Reject Refund"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <span v-else class="text-gray-400 text-[10px] italic">
+                 No Action
+              </span>
+
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    </div>
+</template>
+
+<script setup>
+// ... import existing ...
+import { ref, onMounted, computed, watch } from "vue";
+import axios from "axios";
+import Swal from "sweetalert2";
+import { BASE_URL } from "../../config/api.js";
+import { useRouter } from "vue-router";
+
+// const transactions = ref([]);
+const isLoading = ref(false);
+const router = useRouter();
+
+// --- Pagination & Filter States ---
+const searchQuery = ref("");
+const currentPage = ref(1);
+const itemsPerPage = ref(10); // Default 10 items
+
+// ... existing logic ...
+const transactions = ref([]);
+const axiosConfig = {
+  headers: { Authorization: `Bearer ${localStorage.getItem("admin_token")}` },
+};
+
+const goToDetail = (trx) => {
+  router.push({
+    name: 'TransactionDetail',
+    params: { id: trx.id },
+    state: { transactionData: JSON.parse(JSON.stringify(trx)) } 
+  });
+};
+
+const totalRevenue = computed(() => {
+  return transactions.value
+    .filter((t) => t.status === "completed")
+    .reduce((acc, curr) => acc + parseFloat(curr.total_amount), 0);
+});
+
+// --- Computed Logic untuk Searching & Pagination ---
+
+const filteredTransactions = computed(() => {
+  const query = searchQuery.value.toLowerCase();
+  if (!query) return transactions.value;
+
+  return transactions.value.filter(t => 
+    t.order_id.toLowerCase().includes(query) ||
+    t.user.first_name.toLowerCase().includes(query) ||
+    t.user.last_name.toLowerCase().includes(query) ||
+    t.user.email.toLowerCase().includes(query)
+  );
+});
+
+const totalPages = computed(() => Math.ceil(filteredTransactions.value.length / itemsPerPage.value));
+
+const paginatedTransactions = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return filteredTransactions.value.slice(start, end);
+});
+
+// Logic text "Showing X to Y"
+const showingStart = computed(() => {
+  if (filteredTransactions.value.length === 0) return 0;
+  return (currentPage.value - 1) * itemsPerPage.value + 1;
+});
+
+const showingEnd = computed(() => Math.min(currentPage.value * itemsPerPage.value, filteredTransactions.value.length));
+
+// Logic agar tombol pagination tidak terlalu panjang jika halaman banyak
+const displayedPages = computed(() => {
+  const total = totalPages.value;
+  const current = currentPage.value;
+  const delta = 2; // Jumlah halaman yang muncul di kiri/kanan current page
+  
+  let range = [];
+  for (let i = Math.max(1, current - delta); i <= Math.min(total, current + delta); i++) {
+    range.push(i);
+  }
+  return range;
+});
+
+// Reset halaman ke 1 jika filter berubah
+watch([searchQuery, itemsPerPage], () => {
+  currentPage.value = 1;
+});
+
+// --- Fetch Actions ---
+
+const fetchTransactions = async () => {
+  isLoading.value = true;
+  try {
+    const res = await axios.get(`${BASE_URL}/admin/transactions`, axiosConfig);
+    transactions.value = res.data;
+  } catch (error) {
+    Swal.fire("Error", "Failed to fetch transactions", "error");
+  } finally {
+    setTimeout(() => (isLoading.value = false), 500);
+  }
+};
+
+const updateStatus = async (id, newStatus) => {
+  try {
+    isLoading.value = true;
+    const res = await axios.put(
+      `${BASE_URL}/admin/transactions/${id}/status`,
+      { status: newStatus },
+      axiosConfig,
+    );
+
+    // Update data lokal agar tidak perlu fetch ulang seluruh tabel
+    const index = transactions.value.findIndex((t) => t.id === id);
+    if (index !== -1) transactions.value[index].status = newStatus;
+
+    Swal.fire({
+      toast: true,
+      position: "top-end",
+      icon: "success",
+      title: res.data.message,
+      showConfirmButton: false,
+      timer: 2000,
+    });
+  } catch (error) {
+    Swal.fire("Failed", "Could not update status", "error");
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+const statusClass = (status) => {
+  const map = {
+    pending: "bg-amber-100 text-amber-600",
+    processing: "bg-blue-100 text-blue-600",
+    completed: "bg-green-100 text-green-600",
+    cancelled: "bg-red-100 text-red-600",
+  };
+  return map[status] || "bg-gray-100 text-gray-500";
+};
+
+const formatPrice = (v) =>
+  new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(
+    v,
+  );
+const formatDate = (date) =>
+  new Date(date).toLocaleDateString("id-ID", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+// ... Fetch logic same ...
+
+const handleRefundAction = async (id, action) => {
+  const endpoint = action === 'approve' ? 'refund-approve' : 'refund-reject';
+  const confirmText = action === 'approve' ? 'Approve this refund request?' : 'Reject this refund request?';
+
+  const result = await Swal.fire({
+    title: 'Confirm Action',
+    text: confirmText,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#000',
+    confirmButtonText: 'Yes, proceed!'
+  });
+
+  if (result.isConfirmed) {
+    try {
+      await axios.post(`${BASE_URL}/admin/transactions/${id}/${endpoint}`, {}, axiosConfig);
+      Swal.fire('Success', `Refund ${action}d successfully`, 'success');
+      fetchTransactions(); // Refresh table
+    } catch (err) {
+      Swal.fire('Error', 'Action failed', 'error');
+    }
+  }
+};
+
+const formatStatus = (s) => s.replace(/_/g, ' ');
+
+// ... existing helpers ...
+// ... onMounted ...
+onMounted(fetchTransactions);
+</script>
+<style scoped>
+/* Transisi untuk tabel */
+tr {
+  transition: all 0.2s ease-in-out;
+}
+</style> -->
+

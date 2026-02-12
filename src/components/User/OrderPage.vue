@@ -84,7 +84,7 @@ const formatDate = (date) => new Date(date).toLocaleDateString('id-ID', { day: '
 onMounted(fetchOrders);
 </script> -->
 
-<template>
+<!-- <template>
   <div class="mx-auto px-6 py-20 max-w-5xl min-h-screen">
     <h1 class="mb-10 font-serif text-gray-900 text-4xl uppercase tracking-tighter">My Orders</h1>
 
@@ -221,4 +221,267 @@ onMounted(fetchOrders);
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
-</style>
+</style> -->
+
+<template>
+  <div class="mx-auto px-6 py-20 max-w-5xl min-h-screen">
+    <h1 class="mb-10 font-serif text-gray-900 text-4xl uppercase tracking-tighter">My Orders</h1>
+
+    <div v-if="loading" class="space-y-6">
+       <div class="bg-gray-100 h-40 rounded-2xl animate-pulse"></div>
+    </div>
+    
+    <div v-else-if="transactions.length === 0" class="bg-white p-12 border rounded-2xl text-center animate-fade-in">
+      <p class="text-gray-400 italic">You haven't placed any orders yet.</p>
+      <router-link to="/catalog" class="inline-block mt-6 font-bold text-black underline uppercase tracking-widest">Start Shopping</router-link>
+    </div>
+
+    <div v-else class="space-y-8 animate-fade-in">
+      <div v-for="order in transactions" :key="order.id" 
+           class="bg-white shadow-sm hover:shadow-md border border-gray-100 rounded-2xl overflow-hidden transition-shadow duration-300 relative">
+        
+        <div class="flex md:flex-row flex-col justify-between items-start md:items-center bg-gray-50 px-6 py-4 border-b">
+          <div>
+            <p class="font-bold text-[10px] text-gray-400 uppercase tracking-[0.2em]">Order ID</p>
+            <p class="font-mono font-bold text-gray-800 text-sm">{{ order.order_id }}</p>
+          </div>
+          <div class="mt-2 md:mt-0 text-right">
+            <span :class="statusClass(order.status)" class="px-4 py-1 rounded-full font-bold text-[10px] uppercase tracking-tighter">
+              {{ formatStatus(order.status) }}
+            </span>
+          </div>
+        </div>
+
+        <div 
+          @click="handleOrderClick(order)"
+          :class="['p-6', canPay(order.status) ? 'cursor-pointer hover:bg-blue-50/30 transition-colors' : '']"
+        >
+          <div v-if="canPay(order.status)" class="mb-4 text-blue-600 text-xs text-center uppercase tracking-widest animate-pulse">
+             Tap here to complete payment
+          </div>
+
+          <div v-for="detail in order.details" :key="detail.id" class="flex items-center gap-4 py-4 border-gray-50 last:border-0 border-b">
+            <img :src="detail.product.image" class="bg-gray-100 shadow-sm rounded-lg w-16 h-16 object-cover" />
+            <div class="flex-grow">
+              <h4 class="font-bold text-gray-900 text-sm uppercase">{{ detail.product.name }}</h4>
+              <p class="text-gray-400 text-xs">{{ detail.quantity }} x {{ formatPrice(detail.price) }}</p>
+            </div>
+            <p class="font-bold text-gray-900 text-sm">{{ formatPrice(detail.quantity * detail.price) }}</p>
+          </div>
+        </div>
+
+        <div class="bg-gray-50/50 px-6 py-4 border-t">
+          <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+               <p class="font-bold text-[10px] text-gray-400 uppercase tracking-[0.2em]">Total Amount</p>
+               <p class="font-bold text-black text-xl">{{ formatPrice(order.total_amount) }}</p>
+            </div>
+
+            <div class="flex gap-3">
+              
+              <button 
+                v-if="canPay(order.status)" 
+                @click="cancelOrder(order.id)"
+                class="hover:bg-red-50 px-6 py-2 border border-red-200 rounded-xl font-bold text-red-600 text-xs uppercase tracking-widest transition"
+              >
+                Cancel Order
+              </button>
+
+              <button 
+                v-if="canPay(order.status)" 
+                @click="redirectToPayment(order)"
+                class="bg-black hover:bg-gray-800 px-6 py-2 rounded-xl font-bold text-white text-xs uppercase tracking-widest transition"
+              >
+                Pay Now
+              </button>
+
+              <button 
+                v-if="order.status === 'processing'" 
+                @click="confirmReceived(order.id)"
+                class="bg-green-600 hover:bg-green-700 px-6 py-2 rounded-xl font-bold text-white text-xs uppercase tracking-widest transition"
+              >
+                Order Received
+              </button>
+
+              <button 
+                v-if="['completed', 'processing'].includes(order.status)" 
+                @click="requestRefund(order.id)"
+                class="hover:bg-gray-100 px-6 py-2 border border-gray-300 rounded-xl font-bold text-gray-600 text-xs uppercase tracking-widest transition"
+              >
+                Request Refund
+              </button>
+
+              <div v-if="order.status === 'refund_requested'" class="bg-amber-100 px-4 py-2 rounded-xl text-amber-700 text-xs font-bold">
+                 Waiting Admin Confirmation
+              </div>
+
+              <button 
+                v-if="order.status === 'refund_approved'" 
+                @click="processRefund(order.id)"
+                class="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-xl font-bold text-white text-xs uppercase tracking-widest transition"
+              >
+                Refund Now
+              </button>
+
+              <div v-if="order.status === 'refund_rejected'" class="text-red-500 text-xs font-bold italic">
+                 Refund Request Rejected
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
+import Swal from 'sweetalert2';
+import { BASE_URL } from "../../config/api";
+
+const transactions = ref([]);
+const loading = ref(true);
+
+const fetchOrders = async () => {
+  loading.value = true;
+  try {
+    const res = await axios.get(`${BASE_URL}/transactions`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+    });
+    transactions.value = res.data;
+  } catch (err) {
+    console.error(err);
+  } finally {
+    setTimeout(() => { loading.value = false; }, 600);
+  }
+};
+
+// Helper: Cek status apakah user masih bisa bayar
+const canPay = (status) => ['awaiting payment', 'pending'].includes(status);
+
+// Logic Redirect ke Xendit (Nomor 1 & 2)
+const handleOrderClick = (order) => {
+  if (canPay(order.status)) {
+    redirectToPayment(order);
+  }
+};
+
+const redirectToPayment = (order) => {
+  if (order.payment && order.payment.checkout_url) {
+    window.location.href = order.payment.checkout_url;
+  } else {
+    Swal.fire('Error', 'Payment URL not found', 'error');
+  }
+};
+
+// Logic Cancel (Nomor 3)
+const cancelOrder = async (id) => {
+  const result = await Swal.fire({
+    title: 'Cancel Order?',
+    text: "You won't be able to revert this!",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#000',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, cancel it!'
+  });
+
+  if (result.isConfirmed) {
+    try {
+      await axios.post(`${BASE_URL}/transactions/${id}/cancel`, {}, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      });
+      Swal.fire('Cancelled!', 'Your order has been cancelled.', 'success');
+      fetchOrders();
+    } catch (err) {
+      Swal.fire('Error', 'Failed to cancel order', 'error');
+    }
+  }
+};
+
+// Logic Confirm Complete (Nomor 5)
+const confirmReceived = async (id) => {
+  const result = await Swal.fire({
+    title: 'Confirm Receipt',
+    text: "Have you received your items?",
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#000',
+    confirmButtonText: 'Yes, I have!'
+  });
+
+  if (result.isConfirmed) {
+    try {
+      await axios.post(`${BASE_URL}/transactions/${id}/confirm`, {}, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      });
+      fetchOrders();
+      Swal.fire('Completed!', 'Thank you for shopping with us.', 'success');
+    } catch (err) {
+      Swal.fire('Error', err.response?.data?.message, 'error');
+    }
+  }
+};
+
+// Logic Request Refund (Nomor 6)
+const requestRefund = async (id) => {
+  const { value: text } = await Swal.fire({
+    title: 'Request Refund',
+    input: 'textarea',
+    inputLabel: 'Reason for refund',
+    inputPlaceholder: 'Type your reason here...',
+    inputAttributes: { 'aria-label': 'Type your reason here' },
+    showCancelButton: true,
+    confirmButtonColor: '#000'
+  });
+
+  if (text) {
+    try {
+      await axios.post(`${BASE_URL}/transactions/${id}/refund-request`, { reason: text }, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      });
+      fetchOrders();
+      Swal.fire('Requested', 'Refund request sent to admin.', 'success');
+    } catch (err) {
+      Swal.fire('Error', 'Failed to request refund', 'error');
+    }
+  }
+};
+
+// Logic Process Refund (Refund Now button)
+const processRefund = async (id) => {
+  try {
+    const res = await axios.post(`${BASE_URL}/transactions/${id}/refund-process`, {}, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+    });
+    fetchOrders();
+    Swal.fire('Refunded', res.data.message, 'success');
+  } catch (err) {
+    Swal.fire('Error', 'Refund process failed', 'error');
+  }
+};
+
+const formatStatus = (status) => status.replace(/_/g, ' ');
+
+const statusClass = (status) => {
+  const map = {
+    // awaiting_payment: 'bg-yellow-100 text-yellow-700', // Nomor 1
+    pending: 'bg-orange-100 text-orange-700',          // Nomor 2
+    processing: 'bg-blue-100 text-blue-700',           // Nomor 4
+    completed: 'bg-green-100 text-green-700',          // Nomor 5
+    cancelled: 'bg-red-100 text-red-700',              // Nomor 3
+    // refund_requested: 'bg-purple-100 text-purple-700',
+    // refund_approved: 'bg-indigo-100 text-indigo-700',
+    // refund_rejected: 'bg-gray-200 text-gray-600 line-through',
+    refunded: 'bg-teal-100 text-teal-700'
+  };
+  return map[status] || 'bg-gray-100 text-gray-500';
+};
+
+const formatPrice = (v) => new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(v);
+const formatDate = (date) => new Date(date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+
+onMounted(fetchOrders);
+</script>

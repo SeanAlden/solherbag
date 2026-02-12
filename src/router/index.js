@@ -9,6 +9,7 @@ import ProfilePage from '../components/User/ProfilePage.vue'
 import OrderPage from '../components/User/OrderPage.vue'
 import AdminLoginPage from '../components/Admin/AdminLoginPage.vue'
 import DashboardPage from '../components/Admin/DashboardPage.vue'
+import AdminProfilePage from '../components/Admin/AdminProfilePage.vue'
 import CategoryPage from '../components/Admin/CategoryPage.vue'
 import ProductPage from '../components/Admin/ProductPage.vue'
 import ProductAddPage from '../components/Admin/ProductAddPage.vue'
@@ -60,6 +61,14 @@ const routes = [
             requiresAuth: true,
             hideHeaderFooter: true, // Sembunyikan Header/Footer standar
             isAdmin: true           // Trigger untuk Sidebar layout
+        }
+    },
+    {
+        path: '/admin/profile', name: 'Adminprofile', component: AdminProfilePage,
+        meta: {
+            requiresAuth: true,
+            hideHeaderFooter: true, 
+            isAdmin: true           
         }
     },
     {

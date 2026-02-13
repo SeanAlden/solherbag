@@ -1,50 +1,88 @@
 <template>
-  <div class="mx-auto px-6 py-12 md:py-24 max-w-4xl min-h-screen animate-fade-in">
-    <h1 class="mb-12 font-serif text-3xl md:text-4xl uppercase tracking-tighter">Checkout</h1>
+  <div
+    class="mx-auto px-6 py-12 md:py-24 max-w-4xl min-h-screen animate-fade-in"
+  >
+    <h1
+      class="mb-12 font-serif text-3xl md:text-4xl uppercase tracking-tighter"
+    >
+      Checkout
+    </h1>
 
     <div class="flex lg:flex-row flex-col gap-12">
       <div class="space-y-12 flex-grow">
-        
         <section>
           <div class="flex items-center gap-4 mb-4">
-            <span class="flex justify-center items-center bg-black rounded-full w-6 h-6 font-bold text-[10px] text-white">1</span>
-            <h2 class="font-bold text-gray-900 text-sm uppercase tracking-widest">Contact Information</h2>
+            <span
+              class="flex justify-center items-center bg-black rounded-full w-6 h-6 font-bold text-[10px] text-white"
+              >1</span
+            >
+            <h2
+              class="font-bold text-gray-900 text-sm uppercase tracking-widest"
+            >
+              Contact Information
+            </h2>
           </div>
           <div class="bg-gray-50 p-6 border border-gray-100 rounded-2xl">
-            <p class="text-gray-500 text-xs uppercase tracking-wider mb-1">Email Address</p>
+            <p class="text-gray-500 text-xs uppercase tracking-wider mb-1">
+              Email Address
+            </p>
             <p class="font-medium text-gray-900">{{ userData?.email }}</p>
           </div>
         </section>
 
         <section>
           <div class="flex items-center gap-4 mb-4">
-            <span class="flex justify-center items-center bg-black rounded-full w-6 h-6 font-bold text-[10px] text-white">2</span>
-            <h2 class="font-bold text-gray-900 text-sm uppercase tracking-widest">Shipping Address</h2>
+            <span
+              class="flex justify-center items-center bg-black rounded-full w-6 h-6 font-bold text-[10px] text-white"
+              >2</span
+            >
+            <h2
+              class="font-bold text-gray-900 text-sm uppercase tracking-widest"
+            >
+              Shipping Address
+            </h2>
           </div>
-          
-          <div v-if="addresses.length === 0" class="text-center py-10 bg-gray-50 rounded-2xl border border-dashed border-gray-300">
-             <p class="text-gray-500 text-sm italic">No address found.</p>
-             <router-link to="/profilepage" class="text-blue-600 text-xs font-bold underline">+ Add New Address</router-link>
+
+          <div
+            v-if="addresses.length === 0"
+            class="text-center py-10 bg-gray-50 rounded-2xl border border-dashed border-gray-300"
+          >
+            <p class="text-gray-500 text-sm italic">No address found.</p>
+            <router-link
+              to="/profilepage"
+              class="text-blue-600 text-xs font-bold underline"
+              >+ Add New Address</router-link
+            >
           </div>
 
           <div v-else class="space-y-4">
-            <label 
-              v-for="addr in addresses" 
-              :key="addr.id" 
-              :class="[selectedAddressId === addr.id ? 'border-black ring-1 ring-black bg-white' : 'border-gray-100 bg-gray-50/50']"
+            <label
+              v-for="addr in addresses"
+              :key="addr.id"
+              :class="[
+                selectedAddressId === addr.id
+                  ? 'border-black ring-1 ring-black bg-white'
+                  : 'border-gray-100 bg-gray-50/50',
+              ]"
               class="relative flex items-start p-6 border rounded-2xl cursor-pointer transition-all hover:bg-white"
             >
-              <input 
-                type="radio" 
-                name="address" 
-                :value="addr.id" 
+              <input
+                type="radio"
+                name="address"
+                :value="addr.id"
                 v-model="selectedAddressId"
                 class="mt-1 w-4 h-4 text-black focus:ring-black border-gray-300"
               />
               <div class="ml-4 flex-grow">
                 <div class="flex justify-between">
-                   <p class="font-bold text-gray-900 text-sm uppercase">{{ addr.receiver.full_name }}</p>
-                   <span v-if="addr.is_default" class="text-[9px] bg-gray-200 px-2 py-0.5 rounded font-bold uppercase">Default</span>
+                  <p class="font-bold text-gray-900 text-sm uppercase">
+                    {{ addr.receiver.full_name }}
+                  </p>
+                  <span
+                    v-if="addr.is_default"
+                    class="text-[9px] bg-gray-200 px-2 py-0.5 rounded font-bold uppercase"
+                    >Default</span
+                  >
                 </div>
                 <p class="mt-2 text-gray-600 text-sm leading-relaxed">
                   {{ addr.details.location }}, {{ addr.details.type }} <br />
@@ -58,16 +96,39 @@
       </div>
 
       <div class="lg:w-[380px] space-y-6">
-        <div class="bg-white shadow-xl p-8 border border-gray-100 rounded-3xl sticky top-28">
-          <h2 class="mb-6 font-bold text-gray-900 text-sm uppercase tracking-widest border-b pb-4">Order Summary</h2>
-          
-          <div class="space-y-4 mb-8 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-            <div v-for="item in transactionData?.details" :key="item.id" class="flex gap-4">
-              <img :src="item.product.image" class="w-16 h-16 object-cover rounded-xl bg-gray-100" />
+        <div
+          class="bg-white shadow-xl p-8 border border-gray-100 rounded-3xl sticky top-28"
+        >
+          <h2
+            class="mb-6 font-bold text-gray-900 text-sm uppercase tracking-widest border-b pb-4"
+          >
+            Order Summary
+          </h2>
+
+          <div
+            class="space-y-4 mb-8 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar"
+          >
+            <div
+              v-for="item in transactionData?.details"
+              :key="item.id"
+              class="flex gap-4"
+            >
+              <img
+                :src="item.product.image"
+                class="w-16 h-16 object-cover rounded-xl bg-gray-100"
+              />
               <div class="flex-grow">
-                <p class="font-bold text-gray-900 text-[11px] uppercase truncate w-32">{{ item.product.name }}</p>
-                <p class="text-gray-400 text-[10px]">Qty: {{ item.quantity }}</p>
-                <p class="font-medium text-gray-900 text-xs mt-1">{{ formatPrice(item.price * item.quantity) }}</p>
+                <p
+                  class="font-bold text-gray-900 text-[11px] uppercase truncate w-32"
+                >
+                  {{ item.product.name }}
+                </p>
+                <p class="text-gray-400 text-[10px]">
+                  Qty: {{ item.quantity }}
+                </p>
+                <p class="font-medium text-gray-900 text-xs mt-1">
+                  {{ formatPrice(item.price * item.quantity) }}
+                </p>
               </div>
             </div>
           </div>
@@ -77,28 +138,103 @@
               <span>Subtotal</span>
               <span>{{ formatPrice(transactionData?.total_amount) }}</span>
             </div>
+            <div
+              v-if="isLoadingRates"
+              class="mt-6 text-sm text-gray-500 animate-pulse"
+            >
+              Calculating shipping rates...
+            </div>
+
+            <div
+              v-if="shippingRates.length > 0 && selectedAddressId"
+              class="mt-8 space-y-4"
+            >
+              <div class="flex items-center gap-4 mb-4">
+                <span
+                  class="flex justify-center items-center bg-black rounded-full w-6 h-6 font-bold text-[10px] text-white"
+                  >3</span
+                >
+                <h2
+                  class="font-bold text-gray-900 text-sm uppercase tracking-widest"
+                >
+                  Shipping Method
+                </h2>
+              </div>
+
+              <label
+                v-for="(rate, idx) in shippingRates"
+                :key="idx"
+                :class="[
+                  selectedRate?.company === rate.company &&
+                  selectedRate?.type === rate.type
+                    ? 'border-black ring-1 ring-black bg-white'
+                    : 'border-gray-100 bg-gray-50/50',
+                ]"
+                class="relative flex items-center p-4 border rounded-2xl cursor-pointer transition-all"
+              >
+                <input
+                  type="radio"
+                  :value="rate"
+                  v-model="selectedRate"
+                  class="w-4 h-4 text-black focus:ring-black border-gray-300"
+                />
+                <div class="ml-4 flex-grow flex justify-between items-center">
+                  <div>
+                    <p class="font-bold text-gray-900 text-sm uppercase">
+                      {{ rate.company }} - {{ rate.type }}
+                    </p>
+                    <p class="text-gray-500 text-xs">
+                      {{ rate.courier_name }} ({{ rate.duration }})
+                    </p>
+                  </div>
+                  <p class="font-bold text-black">
+                    {{ formatPrice(rate.price) }}
+                  </p>
+                </div>
+              </label>
+            </div>
             <div class="flex justify-between text-gray-500">
               <span>Shipping</span>
-              <span class="italic text-[10px]">Calculated later</span>
+              <!-- <span class="italic text-[10px]">Calculated later</span> -->
+              <span v-if="selectedRate" class="font-medium text-gray-900">{{
+                formatPrice(selectedRate.price)
+              }}</span>
+              <span v-else class="italic text-[10px]"
+                >Select shipping method</span
+              >
             </div>
-            <div class="flex justify-between pt-4 font-bold text-gray-900 border-t border-gray-100">
-              <span class="uppercase tracking-widest text-xs">Total Amount</span>
-              <span class="text-lg">{{ formatPrice(transactionData?.total_amount) }}</span>
+            <div
+              class="flex justify-between pt-4 font-bold text-gray-900 border-t border-gray-100"
+            >
+              <span class="uppercase tracking-widest text-xs"
+                >Total Amount</span
+              >
+              <!-- <span class="text-lg">{{
+                formatPrice(transactionData?.total_amount)
+              }}</span> -->
+              <span class="text-lg">{{ formatPrice(grandTotal) }}</span>
             </div>
           </div>
 
-          <button 
-            @click="handlePayment" 
-            :disabled="isProcessing || !selectedAddressId"
+          <button
+            @click="handlePayment"
+            :disabled="isProcessing || !selectedAddressId || !selectedRate"
             class="mt-8 w-full bg-black hover:bg-gray-800 disabled:bg-gray-300 py-5 rounded-2xl font-bold text-white text-xs uppercase tracking-[0.3em] transition-all duration-500 shadow-xl shadow-black/10"
           >
             <span v-if="!isProcessing">Pay Now</span>
             <span v-else class="flex justify-center items-center gap-2">
-               <div class="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-               Processing...
+              <div
+                class="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin"
+              ></div>
+              Processing...
             </span>
           </button>
-          <p v-if="!selectedAddressId" class="mt-4 text-[10px] text-red-500 text-center uppercase tracking-tighter">* Please select a shipping address</p>
+          <p
+            v-if="!selectedAddressId"
+            class="mt-4 text-[10px] text-red-500 text-center uppercase tracking-tighter"
+          >
+            * Please select a shipping address
+          </p>
         </div>
       </div>
     </div>
@@ -106,10 +242,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import axios from 'axios';
-import Swal from 'sweetalert2';
+import { ref, onMounted } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import axios from "axios";
+import Swal from "sweetalert2";
 import { BASE_URL } from "../../config/api.js";
 
 const route = useRoute();
@@ -122,9 +258,42 @@ const transactionData = ref(null);
 const selectedAddressId = ref(null);
 const isProcessing = ref(false);
 
+const shippingRates = ref([]);
+const selectedRate = ref(null);
+const isLoadingRates = ref(false);
+
 const axiosConfig = {
   headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
 };
+
+// Tonton perubahan selectedAddressId untuk memanggil API ongkir
+watch(selectedAddressId, async (newVal) => {
+  if (newVal) {
+    selectedRate.value = null; // Reset kurir pilihan
+    isLoadingRates.value = true;
+    try {
+      const res = await axios.post(
+        `${BASE_URL}/shipping/rates`,
+        { address_id: newVal },
+        axiosConfig,
+      );
+      shippingRates.value = res.data.pricing; // Asumsi struktur dari Biteship API
+    } catch (error) {
+      console.error("Gagal mengambil ongkir", error);
+    } finally {
+      isLoadingRates.value = false;
+    }
+  }
+});
+
+// Computed untuk Grand Total (Produk + Ongkir)
+const grandTotal = computed(() => {
+  let total = parseFloat(transactionData.value?.total_amount) || 0;
+  if (selectedRate.value) {
+    total += parseFloat(selectedRate.value.price);
+  }
+  return total;
+});
 
 const fetchData = async () => {
   try {
@@ -135,7 +304,10 @@ const fetchData = async () => {
     // 2. Ambil data Transaksi (bisa dari API atau state router)
     // Skenario: Kita fetch ulang data transaksi berdasarkan ID dari URL
     const transactionId = route.params.id; // Pastikan route: /payment/:id
-    const resTrx = await axios.get(`${BASE_URL}/transactions/${transactionId}`, axiosConfig);
+    const resTrx = await axios.get(
+      `${BASE_URL}/transactions/${transactionId}`,
+      axiosConfig,
+    );
     transactionData.value = resTrx.data;
 
     // 3. Ambil daftar alamat
@@ -143,43 +315,83 @@ const fetchData = async () => {
     addresses.value = resAddr.data.data;
 
     // Set default selected address jika ada
-    const defaultAddr = addresses.value.find(a => a.is_default);
+    const defaultAddr = addresses.value.find((a) => a.is_default);
     if (defaultAddr) selectedAddressId.value = defaultAddr.id;
-
   } catch (error) {
     console.error("Fetch data failed", error);
     Swal.fire("Error", "Failed to load checkout data", "error");
   }
 };
 
+// const handlePayment = async () => {
+//   isProcessing.value = true;
+//   try {
+//     const payload = {
+//       transaction_id: transactionData.value.id,
+//       address_id: selectedAddressId.value
+//     };
+
+//     const res = await axios.post(`${BASE_URL}/payments/invoice`, payload, axiosConfig);
+
+//     // Redirect ke URL Xendit
+//     if (res.data.checkout_url) {
+//       window.location.href = res.data.checkout_url;
+//     }
+//   } catch (error) {
+//     Swal.fire("Payment Error", error.response?.data?.message || "Failed to create invoice", "error");
+//   } finally {
+//     isProcessing.value = false;
+//   }
+// };
+
+// Update payload handlePayment
 const handlePayment = async () => {
   isProcessing.value = true;
   try {
     const payload = {
       transaction_id: transactionData.value.id,
-      address_id: selectedAddressId.value
+      address_id: selectedAddressId.value,
+      courier_company: selectedRate.value.company,
+      courier_type: selectedRate.value.type,
+      shipping_cost: selectedRate.value.price,
     };
 
-    const res = await axios.post(`${BASE_URL}/payments/invoice`, payload, axiosConfig);
-    
-    // Redirect ke URL Xendit
-    if (res.data.checkout_url) {
-      window.location.href = res.data.checkout_url;
-    }
+    const res = await axios.post(
+      `${BASE_URL}/payments/invoice`,
+      payload,
+      axiosConfig,
+    );
+    if (res.data.checkout_url) window.location.href = res.data.checkout_url;
   } catch (error) {
-    Swal.fire("Payment Error", error.response?.data?.message || "Failed to create invoice", "error");
+    Swal.fire(
+      "Payment Error",
+      error.response?.data?.message || "Failed to create invoice",
+      "error",
+    );
   } finally {
     isProcessing.value = false;
   }
 };
 
-const formatPrice = (v) => new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(v);
+const formatPrice = (v) =>
+  new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0,
+  }).format(v);
 
 onMounted(fetchData);
 </script>
 
 <style scoped>
-.custom-scrollbar::-webkit-scrollbar { width: 3px; }
-.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-.custom-scrollbar::-webkit-scrollbar-thumb { background: #eee; border-radius: 10px; }
+.custom-scrollbar::-webkit-scrollbar {
+  width: 3px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #eee;
+  border-radius: 10px;
+}
 </style>

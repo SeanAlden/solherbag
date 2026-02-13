@@ -294,6 +294,101 @@ const fetchProductDetail = async () => {
   }
 };
 
+// const handleAction = async (type) => {
+//   const token = localStorage.getItem("token");
+//   if (!token) {
+//     Swal.fire({
+//       icon: "info",
+//       title: "Login Required",
+//       confirmButtonColor: "#000",
+//     }).then(() => router.push("/login"));
+//     return;
+//   }
+
+//   // --- 1. START FLY ANIMATION LOGIC ---
+//   const productImage = document.querySelector(".main-product-image"); // Pastikan img memiliki class ini
+//   const cartIcon = document.querySelector(".cart-icon-header"); // Pastikan icon bag di Header memiliki class ini
+
+//   if (productImage && cartIcon) {
+//     // Ambil koordinat sumber dan tujuan
+//     const imgRect = productImage.getBoundingClientRect();
+//     const cartRect = cartIcon.getBoundingClientRect();
+
+//     // Buat elemen kloning untuk animasi
+//     const flyer = productImage.cloneNode(true);
+//     flyer.classList.add("fly-item");
+
+//     // Set posisi awal tepat di atas gambar asli
+//     Object.assign(flyer.style, {
+//       position: "fixed",
+//       top: `${imgRect.top}px`,
+//       left: `${imgRect.left}px`,
+//       width: `${imgRect.width}px`,
+//       height: `${imgRect.height}px`,
+//       zIndex: "1000",
+//       transition: "all 0.8s cubic-bezier(0.42, 0, 0.58, 1)",
+//       pointerEvents: "none",
+//     });
+
+//     document.body.appendChild(flyer);
+
+//     // Jalankan animasi ke koordinat keranjang
+//     setTimeout(() => {
+//       Object.assign(flyer.style, {
+//         top: `${cartRect.top}px`,
+//         left: `${cartRect.left}px`,
+//         width: "20px",
+//         height: "20px",
+//         opacity: "0.4",
+//         transform: "rotate(720deg)",
+//       });
+//     }, 10);
+
+//     // Hapus elemen setelah animasi selesai
+//     flyer.addEventListener(
+//       "transitionend",
+//       () => {
+//         flyer.remove();
+//         // Trigger update data optimistik di Header setelah animasi 'masuk'
+//         const event = new CustomEvent("optimistic-add-to-cart", {
+//           detail: product.value,
+//         });
+//         window.dispatchEvent(event);
+//       },
+//       { once: true },
+//     );
+//   }
+//   // --- END FLY ANIMATION LOGIC ---
+
+//   if (type !== "buy") {
+//     Swal.fire({
+//       title: "Added to Bag",
+//       icon: "success",
+//       toast: true,
+//       position: "top-center",
+//       showConfirmButton: false,
+//       timer: 2000,
+//     });
+//   }
+
+//   try {
+//     const res = await axios.post(
+//       `${BASE_URL}/carts`,
+//       { product_id: product.value.id, quantity: 1 },
+//       { headers: { Authorization: `Bearer ${token}` } },
+//     );
+
+//     if (type === "buy") router.push("/orderpage");
+//   } catch (error) {
+//     Swal.fire(
+//       "Error",
+//       error.response?.data?.message || "Failed to sync bag",
+//       "error",
+//     );
+//     window.dispatchEvent(new Event("refresh-cart"));
+//   }
+// };
+
 const handleAction = async (type) => {
   const token = localStorage.getItem("token");
   if (!token) {
@@ -305,85 +400,108 @@ const handleAction = async (type) => {
     return;
   }
 
-  // --- 1. START FLY ANIMATION LOGIC ---
-  const productImage = document.querySelector(".main-product-image"); // Pastikan img memiliki class ini
-  const cartIcon = document.querySelector(".cart-icon-header"); // Pastikan icon bag di Header memiliki class ini
+  // --- 1. START FLY ANIMATION LOGIC (HANYA UNTUK ADD TO CART) ---
+  if (type === "cart") {
+    const productImage = document.querySelector(".main-product-image");
+    const cartIcon = document.querySelector(".cart-icon-header");
 
-  if (productImage && cartIcon) {
-    // Ambil koordinat sumber dan tujuan
-    const imgRect = productImage.getBoundingClientRect();
-    const cartRect = cartIcon.getBoundingClientRect();
+    if (productImage && cartIcon) {
+      const imgRect = productImage.getBoundingClientRect();
+      const cartRect = cartIcon.getBoundingClientRect();
 
-    // Buat elemen kloning untuk animasi
-    const flyer = productImage.cloneNode(true);
-    flyer.classList.add("fly-item");
+      const flyer = productImage.cloneNode(true);
+      flyer.classList.add("fly-item");
 
-    // Set posisi awal tepat di atas gambar asli
-    Object.assign(flyer.style, {
-      position: "fixed",
-      top: `${imgRect.top}px`,
-      left: `${imgRect.left}px`,
-      width: `${imgRect.width}px`,
-      height: `${imgRect.height}px`,
-      zIndex: "1000",
-      transition: "all 0.8s cubic-bezier(0.42, 0, 0.58, 1)",
-      pointerEvents: "none",
-    });
-
-    document.body.appendChild(flyer);
-
-    // Jalankan animasi ke koordinat keranjang
-    setTimeout(() => {
       Object.assign(flyer.style, {
-        top: `${cartRect.top}px`,
-        left: `${cartRect.left}px`,
-        width: "20px",
-        height: "20px",
-        opacity: "0.4",
-        transform: "rotate(720deg)",
+        position: "fixed",
+        top: `${imgRect.top}px`,
+        left: `${imgRect.left}px`,
+        width: `${imgRect.width}px`,
+        height: `${imgRect.height}px`,
+        zIndex: "1000",
+        transition: "all 0.8s cubic-bezier(0.42, 0, 0.58, 1)",
+        pointerEvents: "none",
       });
-    }, 10);
 
-    // Hapus elemen setelah animasi selesai
-    flyer.addEventListener(
-      "transitionend",
-      () => {
-        flyer.remove();
-        // Trigger update data optimistik di Header setelah animasi 'masuk'
-        const event = new CustomEvent("optimistic-add-to-cart", {
-          detail: product.value,
+      document.body.appendChild(flyer);
+
+      setTimeout(() => {
+        Object.assign(flyer.style, {
+          top: `${cartRect.top}px`,
+          left: `${cartRect.left}px`,
+          width: "20px",
+          height: "20px",
+          opacity: "0.4",
+          transform: "rotate(720deg)",
         });
-        window.dispatchEvent(event);
-      },
-      { once: true },
-    );
+      }, 10);
+
+      flyer.addEventListener(
+        "transitionend",
+        () => {
+          flyer.remove();
+          const event = new CustomEvent("optimistic-add-to-cart", {
+            detail: product.value,
+          });
+          window.dispatchEvent(event);
+        },
+        { once: true },
+      );
+    }
   }
   // --- END FLY ANIMATION LOGIC ---
 
-  if (type !== "buy") {
-    Swal.fire({
-      title: "Added to Bag",
-      icon: "success",
-      toast: true,
-      position: "top-center",
-      showConfirmButton: false,
-      timer: 2000,
-    });
-  }
-
   try {
-    const res = await axios.post(
+    // 2. Masukkan produk ke keranjang terlebih dahulu
+    await axios.post(
       `${BASE_URL}/carts`,
       { product_id: product.value.id, quantity: 1 },
-      { headers: { Authorization: `Bearer ${token}` } },
+      { headers: { Authorization: `Bearer ${token}` } }
     );
 
-    if (type === "buy") router.push("/orderpage");
+    if (type === "buy") {
+      // 3. LOGIKA KHUSUS "BUY IT NOW"
+      
+      // Tampilkan loading karena kita melakukan 2 API call berurutan
+      Swal.fire({
+        title: 'Preparing Order...',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
+      // Eksekusi Checkout untuk mengubah Cart menjadi Transaction
+      const checkoutRes = await axios.post(
+        `${BASE_URL}/checkout`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      Swal.close();
+
+      // Dapatkan transaction_id dan arahkan ke PaymentPage
+      const transactionId = checkoutRes.data.transaction_id;
+      router.push(`/payment/${transactionId}`);
+
+    } else {
+      // 4. LOGIKA "ADD TO CART"
+      Swal.fire({
+        title: "Added to Bag",
+        icon: "success",
+        toast: true,
+        position: "top-center",
+        showConfirmButton: false,
+        timer: 2000,
+      });
+      window.dispatchEvent(new Event("refresh-cart"));
+    }
   } catch (error) {
+    Swal.close();
     Swal.fire(
       "Error",
-      error.response?.data?.message || "Failed to sync bag",
-      "error",
+      error.response?.data?.message || "Action failed",
+      "error"
     );
     window.dispatchEvent(new Event("refresh-cart"));
   }

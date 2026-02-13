@@ -28,12 +28,12 @@
     <div class="grid grid-cols-1 md:grid-cols-2 w-full overflow-hidden">
       <img
         src="../../assets/DSCF5814.jpg"
-        @click="navigateToSpecificProduct('DSCF5814')"
+        @click="navigateToSpecificProduct('IMPERIAL RED')"
         class="w-full h-full object-cover hover:scale-105 transition-transform duration-700 cursor-pointer"
       />
       <img
         src="../../assets/DSCF5186.jpg"
-        @click="navigateToSpecificProduct('DSCF5186')"
+        @click="navigateToSpecificProduct('MAN TANG HONG')"
         class="w-full h-full object-cover hover:scale-105 transition-transform duration-700 cursor-pointer"
       />
     </div>
@@ -194,7 +194,7 @@
     <!-- <div class="relative w-full h-[300px] md:h-[500px] overflow-hidden"> -->
     <div
       class="relative w-full h-[300px] md:h-[500px] overflow-hidden cursor-pointer"
-      @click="navigateToSpecificProduct('DSCF5958')"
+      @click="navigateToSpecificProduct('RED CHARM')"
     >
       <img
         src="../../assets/home_lastimage.jpg"

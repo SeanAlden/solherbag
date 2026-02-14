@@ -223,7 +223,8 @@ onMounted(fetchOrders);
 }
 </style> -->
 
-<template>
+<!-- Sebelum Timer untuk Expired -->
+<!-- <template>
   <div class="mx-auto px-6 py-20 max-w-5xl min-h-screen">
     <h1
       class="mb-10 font-serif text-gray-900 text-4xl uppercase tracking-tighter"
@@ -575,4 +576,424 @@ const formatDate = (date) =>
   });
 
 onMounted(fetchOrders);
+</script>
+
+<!-- Sesudah Timer untuk Expired -->
+<template>
+  <div class="mx-auto px-6 py-20 max-w-5xl min-h-screen">
+    <h1
+      class="mb-10 font-serif text-gray-900 text-4xl uppercase tracking-tighter"
+    >
+      Track My Orders
+    </h1>
+
+    <div v-if="loading" class="space-y-6">
+      <div class="bg-gray-100 h-40 rounded-2xl animate-pulse"></div>
+    </div>
+
+    <div
+      v-else-if="transactions.length === 0"
+      class="bg-white p-12 border rounded-2xl text-center animate-fade-in"
+    >
+      <p class="text-gray-400 italic">You haven't placed any orders yet.</p>
+      <router-link
+        to="/catalog"
+        class="inline-block mt-6 font-bold text-black underline uppercase tracking-widest"
+        >Start Shopping</router-link
+      >
+    </div>
+
+    <div v-else class="space-y-8 animate-fade-in">
+      <div
+        v-for="order in transactions"
+        :key="order.id"
+        class="bg-white shadow-sm hover:shadow-md border border-gray-100 rounded-2xl overflow-hidden transition-shadow duration-300 relative"
+      >
+        <div
+          class="flex md:flex-row flex-col justify-between items-start md:items-center bg-gray-50 px-6 py-4 border-b"
+        >
+          <div>
+            <p
+              class="font-bold text-[10px] text-gray-400 uppercase tracking-[0.2em]"
+            >
+              Order ID
+            </p>
+            <p class="font-mono font-bold text-gray-800 text-sm">
+              {{ order.order_id }}
+            </p>
+          </div>
+          <div class="mt-2 md:mt-0 text-right">
+            <span
+              :class="statusClass(order.status)"
+              class="px-4 py-1 rounded-full font-bold text-[10px] uppercase tracking-tighter"
+            >
+              {{ formatStatus(order.status) }}
+            </span>
+          </div>
+        </div>
+
+        <div
+          @click="handleOrderClick(order)"
+          :class="[
+            'p-6',
+            canPay(order.status) && countdowns[order.id] !== 'Expired'
+              ? 'cursor-pointer hover:bg-blue-50/30 transition-colors'
+              : '',
+          ]"
+        >
+          <div
+            v-if="canPay(order.status) && countdowns[order.id] !== 'Expired'"
+            class="mb-4 text-blue-600 text-xs text-center uppercase tracking-widest animate-pulse"
+          >
+            Tap here to complete payment
+          </div>
+
+          <div
+            v-for="detail in order.details"
+            :key="detail.id"
+            class="flex items-center gap-4 py-4 border-gray-50 last:border-0 border-b"
+          >
+            <img
+              :src="detail.product.image"
+              class="bg-gray-100 shadow-sm rounded-lg w-16 h-16 object-cover"
+            />
+            <div class="flex-grow">
+              <h4 class="font-bold text-gray-900 text-sm uppercase">
+                {{ detail.product.name }}
+              </h4>
+              <p class="text-gray-400 text-xs">
+                {{ detail.quantity }} x {{ formatPrice(detail.price) }}
+              </p>
+            </div>
+            <p class="font-bold text-gray-900 text-sm">
+              {{ formatPrice(detail.quantity * detail.price) }}
+            </p>
+          </div>
+        </div>
+
+        <div class="bg-gray-50/50 px-6 py-4 border-t">
+          <div
+            class="flex flex-col md:flex-row justify-between items-center gap-4"
+          >
+            <div>
+              <p
+                class="font-bold text-[10px] text-gray-400 uppercase tracking-[0.2em]"
+              >
+                Total Amount
+              </p>
+              <p class="font-bold text-black text-xl">
+                {{ formatPrice(order.total_amount) }}
+              </p>
+            </div>
+
+            <div class="flex flex-col md:flex-row items-center gap-4">
+              <div
+                v-if="canPay(order.status) && order.payment"
+                class="flex items-center gap-2"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="w-4 h-4 text-red-500 animate-pulse"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <span class="font-mono font-bold text-red-500 text-sm">
+                  {{ countdowns[order.id] }}
+                </span>
+              </div>
+
+              <div class="flex gap-3">
+                <button
+                  v-if="canPay(order.status)"
+                  @click="cancelOrder(order.id)"
+                  class="hover:bg-red-50 px-6 py-2 border border-red-200 rounded-xl font-bold text-red-600 text-xs uppercase tracking-widest transition"
+                >
+                  Cancel Order
+                </button>
+
+                <button
+                  v-if="canPay(order.status)"
+                  @click="redirectToPayment(order)"
+                  :disabled="countdowns[order.id] === 'Expired'"
+                  class="bg-black hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed px-6 py-2 rounded-xl font-bold text-white text-xs uppercase tracking-widest transition"
+                >
+                  Pay Now
+                </button>
+
+                <button
+                  v-if="order.status === 'processing'"
+                  @click="confirmReceived(order.id)"
+                  class="bg-green-600 hover:bg-green-700 px-6 py-2 rounded-xl font-bold text-white text-xs uppercase tracking-widest transition"
+                >
+                  Order Received
+                </button>
+
+                <button
+                  v-if="['completed', 'processing'].includes(order.status)"
+                  @click="requestRefund(order.id)"
+                  class="hover:bg-gray-100 px-6 py-2 border border-gray-300 rounded-xl font-bold text-gray-600 text-xs uppercase tracking-widest transition"
+                >
+                  Request Refund
+                </button>
+
+                <div
+                  v-if="order.status === 'refund_requested'"
+                  class="bg-amber-100 px-4 py-2 rounded-xl text-amber-700 text-xs font-bold"
+                >
+                  Waiting Admin Confirmation
+                </div>
+
+                <div
+                  v-if="order.status === 'refund_manual_required'"
+                  class="bg-pink-100 px-4 py-2 rounded-xl text-pink-700 text-xs font-bold"
+                >
+                  Process via Manual Transfer (Contact Admin)
+                </div>
+
+                <button
+                  v-if="order.status === 'refund_approved'"
+                  @click="processRefund(order.id)"
+                  class="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-xl font-bold text-white text-xs uppercase tracking-widest transition"
+                >
+                  Refund Now
+                </button>
+
+                <div
+                  v-if="order.status === 'refund_rejected'"
+                  class="text-red-500 text-xs font-bold italic"
+                >
+                  Refund Request Rejected
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+-->
+
+<script setup>
+import { ref, onMounted, onUnmounted } from "vue";
+import axios from "axios";
+import Swal from "sweetalert2";
+import { BASE_URL } from "../../config/api";
+
+const transactions = ref([]);
+const loading = ref(true);
+
+// State untuk menyimpan waktu hitung mundur setiap order
+const countdowns = ref({});
+let timerInterval = null;
+
+// Fungsi untuk menghitung sisa waktu (Berdasarkan 24 Jam Xendit Default)
+const calculateTimeLeft = (createdAt) => {
+  // Tambah 24 Jam (24 * 60 * 60 * 1000 ms) ke waktu invoice dibuat
+  const expiryTime = new Date(createdAt).getTime() + 86400000;
+  const now = new Date().getTime();
+  const diff = expiryTime - now;
+
+  if (diff <= 0) return "Expired";
+
+  // Kalkulasi Jam, Menit, Detik
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+  // Format menjadi HH:MM:SS
+  return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+};
+
+// Fungsi untuk memulai loop timer
+const startTimers = () => {
+  timerInterval = setInterval(() => {
+    transactions.value.forEach((order) => {
+      // Hanya hitung jika status pending/awaiting payment dan ada data pembayaran
+      if (canPay(order.status) && order.payment?.created_at) {
+        countdowns.value[order.id] = calculateTimeLeft(
+          order.payment.created_at,
+        );
+      }
+    });
+  }, 1000);
+};
+
+const fetchOrders = async () => {
+  loading.value = true;
+  try {
+    const res = await axios.get(`${BASE_URL}/transactions`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    });
+    transactions.value = res.data;
+
+    // Mulai timer setelah data berhasil di-fetch
+    startTimers();
+  } catch (err) {
+    console.error(err);
+  } finally {
+    setTimeout(() => {
+      loading.value = false;
+    }, 600);
+  }
+};
+
+const canPay = (status) => ["awaiting_payment", "pending"].includes(status);
+
+const handleOrderClick = (order) => {
+  if (canPay(order.status) && countdowns.value[order.id] !== "Expired") {
+    redirectToPayment(order);
+  }
+};
+
+const redirectToPayment = (order) => {
+  if (order.payment && order.payment.checkout_url) {
+    window.location.href = order.payment.checkout_url;
+  } else {
+    Swal.fire("Error", "Payment URL not found", "error");
+  }
+};
+
+const cancelOrder = async (id) => {
+  const result = await Swal.fire({
+    title: "Cancel Order?",
+    text: "You won't be able to revert this!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#000",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, cancel it!",
+  });
+
+  if (result.isConfirmed) {
+    try {
+      await axios.post(
+        `${BASE_URL}/transactions/${id}/cancel`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        },
+      );
+      Swal.fire("Cancelled!", "Your order has been cancelled.", "success");
+      fetchOrders();
+    } catch (err) {
+      Swal.fire("Error", "Failed to cancel order", "error");
+    }
+  }
+};
+
+const confirmReceived = async (id) => {
+  const result = await Swal.fire({
+    title: "Confirm Receipt",
+    text: "Have you received your items?",
+    icon: "question",
+    showCancelButton: true,
+    confirmButtonColor: "#000",
+    confirmButtonText: "Yes, I have!",
+  });
+
+  if (result.isConfirmed) {
+    try {
+      await axios.post(
+        `${BASE_URL}/transactions/${id}/confirm`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        },
+      );
+      fetchOrders();
+      Swal.fire("Completed!", "Thank you for shopping with us.", "success");
+    } catch (err) {
+      Swal.fire("Error", err.response?.data?.message, "error");
+    }
+  }
+};
+
+const requestRefund = async (id) => {
+  const { value: text } = await Swal.fire({
+    title: "Request Refund",
+    input: "textarea",
+    inputLabel: "Reason for refund",
+    inputPlaceholder: "Type your reason here...",
+    inputAttributes: { "aria-label": "Type your reason here" },
+    showCancelButton: true,
+    confirmButtonColor: "#000",
+  });
+
+  if (text) {
+    try {
+      await axios.post(
+        `${BASE_URL}/transactions/${id}/refund-request`,
+        { reason: text },
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        },
+      );
+      fetchOrders();
+      Swal.fire("Requested", "Refund request sent to admin.", "success");
+    } catch (err) {
+      Swal.fire("Error", "Failed to request refund", "error");
+    }
+  }
+};
+
+const processRefund = async (id) => {
+  try {
+    const res = await axios.post(
+      `${BASE_URL}/transactions/${id}/refund-process`,
+      {},
+      {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      },
+    );
+    fetchOrders();
+    Swal.fire("Refunded", res.data.message, "success");
+  } catch (err) {
+    Swal.fire("Error", "Refund process failed", "error");
+  }
+};
+
+const formatStatus = (status) => status.replace(/_/g, " ");
+
+const statusClass = (status) => {
+  const map = {
+    awaiting_payment: "bg-yellow-100 text-yellow-700",
+    pending: "bg-orange-100 text-orange-700",
+    processing: "bg-blue-100 text-blue-700",
+    completed: "bg-green-100 text-green-700",
+    cancelled: "bg-red-100 text-red-700",
+    refund_requested: "bg-purple-100 text-purple-700",
+    refund_approved: "bg-indigo-100 text-indigo-700",
+    refund_rejected: "bg-gray-200 text-gray-600 line-through",
+    refunded: "bg-teal-100 text-teal-700",
+    refund_manual_required: "bg-pink-100 text-pink-700",
+  };
+  return map[status] || "bg-gray-100 text-gray-500";
+};
+
+const formatPrice = (v) =>
+  new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(
+    v,
+  );
+const formatDate = (date) =>
+  new Date(date).toLocaleDateString("id-ID", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+
+onMounted(fetchOrders);
+
+// Pastikan untuk membersihkan interval saat user pindah halaman agar tidak bocor memori (Memory Leak)
+onUnmounted(() => {
+  if (timerInterval) clearInterval(timerInterval);
+});
 </script>

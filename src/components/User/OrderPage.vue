@@ -780,48 +780,257 @@ onMounted(fetchOrders);
     </div>
   </div>
 </template>
--->
 
 <script setup>
+// import { ref, onMounted, onUnmounted } from "vue";
+// import axios from "axios";
+// import Swal from "sweetalert2";
+// import { BASE_URL } from "../../config/api";
+
+// const transactions = ref([]);
+// const loading = ref(true);
+
+// // State untuk menyimpan waktu hitung mundur setiap order
+// const countdowns = ref({});
+// let timerInterval = null;
+
+// // Fungsi untuk menghitung sisa waktu (Berdasarkan 24 Jam Xendit Default)
+// const calculateTimeLeft = (createdAt) => {
+//   // Tambah 24 Jam (24 * 60 * 60 * 1000 ms) ke waktu invoice dibuat
+//   const expiryTime = new Date(createdAt).getTime() + 86400000;
+//   const now = new Date().getTime();
+//   const diff = expiryTime - now;
+
+//   if (diff <= 0) return "Expired";
+
+//   // Kalkulasi Jam, Menit, Detik
+//   const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+//   const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+//   const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+//   // Format menjadi HH:MM:SS
+//   return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+// };
+
+// // Fungsi untuk memulai loop timer
+// const startTimers = () => {
+//   timerInterval = setInterval(() => {
+//     transactions.value.forEach((order) => {
+//       // Hanya hitung jika status pending/awaiting payment dan ada data pembayaran
+//       if (canPay(order.status) && order.payment?.created_at) {
+//         countdowns.value[order.id] = calculateTimeLeft(
+//           order.payment.created_at,
+//         );
+//       }
+//     });
+//   }, 1000);
+// };
+
+// const fetchOrders = async () => {
+//   loading.value = true;
+//   try {
+//     const res = await axios.get(`${BASE_URL}/transactions`, {
+//       headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+//     });
+//     transactions.value = res.data;
+
+//     // Mulai timer setelah data berhasil di-fetch
+//     startTimers();
+//   } catch (err) {
+//     console.error(err);
+//   } finally {
+//     setTimeout(() => {
+//       loading.value = false;
+//     }, 600);
+//   }
+// };
+
+// const canPay = (status) => ["awaiting_payment", "pending"].includes(status);
+
+// const handleOrderClick = (order) => {
+//   if (canPay(order.status) && countdowns.value[order.id] !== "Expired") {
+//     redirectToPayment(order);
+//   }
+// };
+
+// const redirectToPayment = (order) => {
+//   if (order.payment && order.payment.checkout_url) {
+//     window.location.href = order.payment.checkout_url;
+//   } else {
+//     Swal.fire("Error", "Payment URL not found", "error");
+//   }
+// };
+
+// const cancelOrder = async (id) => {
+//   const result = await Swal.fire({
+//     title: "Cancel Order?",
+//     text: "You won't be able to revert this!",
+//     icon: "warning",
+//     showCancelButton: true,
+//     confirmButtonColor: "#000",
+//     cancelButtonColor: "#d33",
+//     confirmButtonText: "Yes, cancel it!",
+//   });
+
+//   if (result.isConfirmed) {
+//     try {
+//       await axios.post(
+//         `${BASE_URL}/transactions/${id}/cancel`,
+//         {},
+//         {
+//           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+//         },
+//       );
+//       Swal.fire("Cancelled!", "Your order has been cancelled.", "success");
+//       fetchOrders();
+//     } catch (err) {
+//       Swal.fire("Error", "Failed to cancel order", "error");
+//     }
+//   }
+// };
+
+// const confirmReceived = async (id) => {
+//   const result = await Swal.fire({
+//     title: "Confirm Receipt",
+//     text: "Have you received your items?",
+//     icon: "question",
+//     showCancelButton: true,
+//     confirmButtonColor: "#000",
+//     confirmButtonText: "Yes, I have!",
+//   });
+
+//   if (result.isConfirmed) {
+//     try {
+//       await axios.post(
+//         `${BASE_URL}/transactions/${id}/confirm`,
+//         {},
+//         {
+//           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+//         },
+//       );
+//       fetchOrders();
+//       Swal.fire("Completed!", "Thank you for shopping with us.", "success");
+//     } catch (err) {
+//       Swal.fire("Error", err.response?.data?.message, "error");
+//     }
+//   }
+// };
+
+// const requestRefund = async (id) => {
+//   const { value: text } = await Swal.fire({
+//     title: "Request Refund",
+//     input: "textarea",
+//     inputLabel: "Reason for refund",
+//     inputPlaceholder: "Type your reason here...",
+//     inputAttributes: { "aria-label": "Type your reason here" },
+//     showCancelButton: true,
+//     confirmButtonColor: "#000",
+//   });
+
+//   if (text) {
+//     try {
+//       await axios.post(
+//         `${BASE_URL}/transactions/${id}/refund-request`,
+//         { reason: text },
+//         {
+//           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+//         },
+//       );
+//       fetchOrders();
+//       Swal.fire("Requested", "Refund request sent to admin.", "success");
+//     } catch (err) {
+//       Swal.fire("Error", "Failed to request refund", "error");
+//     }
+//   }
+// };
+
+// const processRefund = async (id) => {
+//   try {
+//     const res = await axios.post(
+//       `${BASE_URL}/transactions/${id}/refund-process`,
+//       {},
+//       {
+//         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+//       },
+//     );
+//     fetchOrders();
+//     Swal.fire("Refunded", res.data.message, "success");
+//   } catch (err) {
+//     Swal.fire("Error", "Refund process failed", "error");
+//   }
+// };
+
+// const formatStatus = (status) => status.replace(/_/g, " ");
+
+// const statusClass = (status) => {
+//   const map = {
+//     awaiting_payment: "bg-yellow-100 text-yellow-700",
+//     pending: "bg-orange-100 text-orange-700",
+//     processing: "bg-blue-100 text-blue-700",
+//     completed: "bg-green-100 text-green-700",
+//     cancelled: "bg-red-100 text-red-700",
+//     refund_requested: "bg-purple-100 text-purple-700",
+//     refund_approved: "bg-indigo-100 text-indigo-700",
+//     refund_rejected: "bg-gray-200 text-gray-600 line-through",
+//     refunded: "bg-teal-100 text-teal-700",
+//     refund_manual_required: "bg-pink-100 text-pink-700",
+//   };
+//   return map[status] || "bg-gray-100 text-gray-500";
+// };
+
+// const formatPrice = (v) =>
+//   new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(
+//     v,
+//   );
+// const formatDate = (date) =>
+//   new Date(date).toLocaleDateString("id-ID", {
+//     day: "numeric",
+//     month: "short",
+//     year: "numeric",
+//   });
+
+// onMounted(fetchOrders);
+
+// // Pastikan untuk membersihkan interval saat user pindah halaman agar tidak bocor memori (Memory Leak)
+// onUnmounted(() => {
+//   if (timerInterval) clearInterval(timerInterval);
+// });
+
 import { ref, onMounted, onUnmounted } from "vue";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { BASE_URL } from "../../config/api";
+import { useRouter } from "vue-router"; // [BARU] Import useRouter
 
+const router = useRouter(); // [BARU] Inisialisasi router
 const transactions = ref([]);
 const loading = ref(true);
 
-// State untuk menyimpan waktu hitung mundur setiap order
 const countdowns = ref({});
 let timerInterval = null;
 
-// Fungsi untuk menghitung sisa waktu (Berdasarkan 24 Jam Xendit Default)
 const calculateTimeLeft = (createdAt) => {
-  // Tambah 24 Jam (24 * 60 * 60 * 1000 ms) ke waktu invoice dibuat
-  const expiryTime = new Date(createdAt).getTime() + 86400000;
+  const expiryTime = new Date(createdAt).getTime() + 86400000; // +24 Jam
   const now = new Date().getTime();
   const diff = expiryTime - now;
 
   if (diff <= 0) return "Expired";
 
-  // Kalkulasi Jam, Menit, Detik
   const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
   const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
   const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-  // Format menjadi HH:MM:SS
   return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
 };
 
-// Fungsi untuk memulai loop timer
 const startTimers = () => {
   timerInterval = setInterval(() => {
     transactions.value.forEach((order) => {
-      // Hanya hitung jika status pending/awaiting payment dan ada data pembayaran
-      if (canPay(order.status) && order.payment?.created_at) {
-        countdowns.value[order.id] = calculateTimeLeft(
-          order.payment.created_at,
-        );
+      if (canPay(order.status)) {
+        // [PERBAIKAN] Jika sudah 'pending' pakai waktu invoice Xendit.
+        // Jika masih 'awaiting_payment' (belum ada invoice), pakai waktu transaksi dibuat.
+        const timeReference = order.payment?.created_at || order.created_at;
+        countdowns.value[order.id] = calculateTimeLeft(timeReference);
       }
     });
   }, 1000);
@@ -834,8 +1043,6 @@ const fetchOrders = async () => {
       headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
     });
     transactions.value = res.data;
-
-    // Mulai timer setelah data berhasil di-fetch
     startTimers();
   } catch (err) {
     console.error(err);
@@ -854,15 +1061,22 @@ const handleOrderClick = (order) => {
   }
 };
 
+// [PERBAIKAN] Logika Redirect dipisah berdasarkan status
 const redirectToPayment = (order) => {
-  if (order.payment && order.payment.checkout_url) {
+  if (order.status === "awaiting_payment") {
+    // 1. Belum pilih alamat & kurir -> Arahkan ke PaymentPage
+    router.push(`/payment/${order.id}`);
+  } else if (order.status === "pending" && order.payment?.checkout_url) {
+    // 2. Sudah pilih kurir (Invoice Xendit sudah ada) -> Arahkan ke Xendit
     window.location.href = order.payment.checkout_url;
   } else {
-    Swal.fire("Error", "Payment URL not found", "error");
+    // 3. Fallback jika ada yang salah
+    Swal.fire("Error", "Payment URL not found or invalid status", "error");
   }
 };
 
 const cancelOrder = async (id) => {
+  // ... (Logika Cancel tetap persis sama)
   const result = await Swal.fire({
     title: "Cancel Order?",
     text: "You won't be able to revert this!",
@@ -875,13 +1089,9 @@ const cancelOrder = async (id) => {
 
   if (result.isConfirmed) {
     try {
-      await axios.post(
-        `${BASE_URL}/transactions/${id}/cancel`,
-        {},
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        },
-      );
+      await axios.post(`${BASE_URL}/transactions/${id}/cancel`, {}, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
       Swal.fire("Cancelled!", "Your order has been cancelled.", "success");
       fetchOrders();
     } catch (err) {
@@ -891,6 +1101,7 @@ const cancelOrder = async (id) => {
 };
 
 const confirmReceived = async (id) => {
+  // ... (Logika Confirm tetap persis sama)
   const result = await Swal.fire({
     title: "Confirm Receipt",
     text: "Have you received your items?",
@@ -902,13 +1113,9 @@ const confirmReceived = async (id) => {
 
   if (result.isConfirmed) {
     try {
-      await axios.post(
-        `${BASE_URL}/transactions/${id}/confirm`,
-        {},
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        },
-      );
+      await axios.post(`${BASE_URL}/transactions/${id}/confirm`, {}, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
       fetchOrders();
       Swal.fire("Completed!", "Thank you for shopping with us.", "success");
     } catch (err) {
@@ -918,25 +1125,21 @@ const confirmReceived = async (id) => {
 };
 
 const requestRefund = async (id) => {
+  // ... (Logika Request Refund tetap persis sama)
   const { value: text } = await Swal.fire({
     title: "Request Refund",
     input: "textarea",
     inputLabel: "Reason for refund",
     inputPlaceholder: "Type your reason here...",
-    inputAttributes: { "aria-label": "Type your reason here" },
     showCancelButton: true,
     confirmButtonColor: "#000",
   });
 
   if (text) {
     try {
-      await axios.post(
-        `${BASE_URL}/transactions/${id}/refund-request`,
-        { reason: text },
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        },
-      );
+      await axios.post(`${BASE_URL}/transactions/${id}/refund-request`, { reason: text }, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
       fetchOrders();
       Swal.fire("Requested", "Refund request sent to admin.", "success");
     } catch (err) {
@@ -946,14 +1149,11 @@ const requestRefund = async (id) => {
 };
 
 const processRefund = async (id) => {
+  // ... (Logika Process Refund tetap persis sama)
   try {
-    const res = await axios.post(
-      `${BASE_URL}/transactions/${id}/refund-process`,
-      {},
-      {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      },
-    );
+    const res = await axios.post(`${BASE_URL}/transactions/${id}/refund-process`, {}, {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    });
     fetchOrders();
     Swal.fire("Refunded", res.data.message, "success");
   } catch (err) {
@@ -979,20 +1179,11 @@ const statusClass = (status) => {
   return map[status] || "bg-gray-100 text-gray-500";
 };
 
-const formatPrice = (v) =>
-  new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(
-    v,
-  );
-const formatDate = (date) =>
-  new Date(date).toLocaleDateString("id-ID", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
+const formatPrice = (v) => new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(v);
+const formatDate = (date) => new Date(date).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" });
 
 onMounted(fetchOrders);
 
-// Pastikan untuk membersihkan interval saat user pindah halaman agar tidak bocor memori (Memory Leak)
 onUnmounted(() => {
   if (timerInterval) clearInterval(timerInterval);
 });

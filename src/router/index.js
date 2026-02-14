@@ -27,6 +27,7 @@ import InactiveProductPage from '../components/Admin/InactiveProductPage.vue'
 import TransactionDetailPage from '../components/Admin/TransactionDetailPage.vue'
 import PaymentPage from '../components/User/PaymentPage.vue'
 import PaymentSuccessPage from '../components/User/PaymentSuccessPage.vue'
+import PaymentSuccessPage from '../components/User/TrackingPage.vue'
 
 // Import komponen lainnya (Anda bisa buat file kosong dulu untuk Catalog & Contact)
 // const CatalogPage = { template: '<div class="py-20 text-center text-3xl">Catalog Page Coming Soon</div>' }
@@ -166,6 +167,12 @@ const routes = [
         path: "/payment-success",
         name: "PaymentSuccess",
         component: PaymentSuccessPage,
+        meta: { requiresAuth: true, hideHeaderFooter: true }
+    },
+    {
+        path: "/tracking/:id",
+        name: "TrackingPage",
+        component: TrackingPage,
         meta: { requiresAuth: true, hideHeaderFooter: true }
     }
 ]

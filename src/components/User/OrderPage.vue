@@ -735,6 +735,17 @@ onMounted(fetchOrders);
                 >
                   Order Received
                 </button>
+                <button
+                  v-if="
+                    ['processing', 'completed'].includes(order.status) &&
+                    order.shipping_method === 'biteship' &&
+                    order.tracking_number
+                  "
+                  @click="$router.push(`/tracking/${order.id}`)"
+                  class="bg-black hover:bg-gray-800 px-6 py-2 rounded-xl font-bold text-white text-xs uppercase tracking-widest transition"
+                >
+                  Track Order
+                </button>
 
                 <button
                   v-if="['completed', 'processing'].includes(order.status)"
@@ -1089,9 +1100,13 @@ const cancelOrder = async (id) => {
 
   if (result.isConfirmed) {
     try {
-      await axios.post(`${BASE_URL}/transactions/${id}/cancel`, {}, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
+      await axios.post(
+        `${BASE_URL}/transactions/${id}/cancel`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        },
+      );
       Swal.fire("Cancelled!", "Your order has been cancelled.", "success");
       fetchOrders();
     } catch (err) {
@@ -1113,9 +1128,13 @@ const confirmReceived = async (id) => {
 
   if (result.isConfirmed) {
     try {
-      await axios.post(`${BASE_URL}/transactions/${id}/confirm`, {}, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
+      await axios.post(
+        `${BASE_URL}/transactions/${id}/confirm`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        },
+      );
       fetchOrders();
       Swal.fire("Completed!", "Thank you for shopping with us.", "success");
     } catch (err) {
@@ -1137,9 +1156,13 @@ const requestRefund = async (id) => {
 
   if (text) {
     try {
-      await axios.post(`${BASE_URL}/transactions/${id}/refund-request`, { reason: text }, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
+      await axios.post(
+        `${BASE_URL}/transactions/${id}/refund-request`,
+        { reason: text },
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        },
+      );
       fetchOrders();
       Swal.fire("Requested", "Refund request sent to admin.", "success");
     } catch (err) {
@@ -1151,9 +1174,13 @@ const requestRefund = async (id) => {
 const processRefund = async (id) => {
   // ... (Logika Process Refund tetap persis sama)
   try {
-    const res = await axios.post(`${BASE_URL}/transactions/${id}/refund-process`, {}, {
-      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-    });
+    const res = await axios.post(
+      `${BASE_URL}/transactions/${id}/refund-process`,
+      {},
+      {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      },
+    );
     fetchOrders();
     Swal.fire("Refunded", res.data.message, "success");
   } catch (err) {
@@ -1179,8 +1206,16 @@ const statusClass = (status) => {
   return map[status] || "bg-gray-100 text-gray-500";
 };
 
-const formatPrice = (v) => new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(v);
-const formatDate = (date) => new Date(date).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" });
+const formatPrice = (v) =>
+  new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(
+    v,
+  );
+const formatDate = (date) =>
+  new Date(date).toLocaleDateString("id-ID", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
 
 onMounted(fetchOrders);
 

@@ -267,19 +267,54 @@ const axiosConfig = {
 };
 
 // Tonton perubahan selectedAddressId untuk memanggil API ongkir
+// watch(selectedAddressId, async (newVal) => {
+//   if (newVal) {
+//     selectedRate.value = null; // Reset kurir pilihan
+//     isLoadingRates.value = true;
+//     try {
+//       const res = await axios.post(
+//         `${BASE_URL}/shipping/rates`,
+//         { address_id: newVal },
+//         axiosConfig,
+//       );
+//       shippingRates.value = res.data.pricing; // Asumsi struktur dari Biteship API
+//     } catch (error) {
+//       console.error("Gagal mengambil ongkir", error);
+//     } finally {
+//       isLoadingRates.value = false;
+//     }
+//   }
+// });
+
+// Tonton perubahan selectedAddressId untuk memanggil API ongkir
 watch(selectedAddressId, async (newVal) => {
   if (newVal) {
     selectedRate.value = null; // Reset kurir pilihan
     isLoadingRates.value = true;
+    shippingRates.value = []; // [PERBAIKAN 1] Reset ke array kosong untuk mencegah undefined
+
     try {
       const res = await axios.post(
         `${BASE_URL}/shipping/rates`,
         { address_id: newVal },
         axiosConfig,
       );
-      shippingRates.value = res.data.pricing; // Asumsi struktur dari Biteship API
+
+      // [PERBAIKAN 2] Pastikan array pricing benar-benar ada dari response
+      if (res.data && res.data.pricing) {
+        shippingRates.value = res.data.pricing;
+      }
     } catch (error) {
       console.error("Gagal mengambil ongkir", error);
+      // [PERBAIKAN 3] Tampilkan pesan error ke user jika gagal
+      Swal.fire({
+        toast: true,
+        position: "top-end",
+        icon: "error",
+        title: error.response?.data?.message || "Failed to calculate shipping.",
+        showConfirmButton: false,
+        timer: 4000,
+      });
     } finally {
       isLoadingRates.value = false;
     }
